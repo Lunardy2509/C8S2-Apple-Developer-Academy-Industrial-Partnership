@@ -8,17 +8,23 @@ final class GeoJSONDecoderManager {
     private init() {}
     
     func loadGeoJSON(on mapView: MKMapView) {
-        guard let url = Bundle.main.url(forResource: "footprint", withExtension: "geojson") else {
-            print("GeoJSON file not found")
+        loadFile(named: "hall", on: mapView)
+        loadFile(named: "placeofinterest", on: mapView)
+        self.hasSeededData = true
+    }
+    
+    private func loadFile(named name: String, on mapView: MKMapView) {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "geojson") else {
+            print("GeoJSON file '\(name)' not found")
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: url)
             let decoder = MKGeoJSONDecoder()
             let features = try decoder.decode(data)
 
-            var hasZoomed = false 
+            var hasZoomed = false
 
             for feature in features {
                 guard let mkFeature = feature as? MKGeoJSONFeature else { continue }
@@ -32,22 +38,23 @@ final class GeoJSONDecoderManager {
                         let (title, category) = extractFeatureID(from: mkFeature)
                         polygon.title = title
                         mapView.addOverlay(polygon)
-                        
+
                         if !hasZoomed {
-                           let region = MKCoordinateRegion(polygon.boundingMapRect)
-                           mapView.setRegion(region, animated: true)
-                           hasZoomed = true
-                       }
-                        
-                        if !["tunnel", "wall"].contains(category){
+                            let region = MKCoordinateRegion(polygon.boundingMapRect)
+                            mapView.setRegion(region, animated: true)
+                            hasZoomed = true
+                        }
+
+                        if !["tunnel", "wall"].contains(category) {
                             mapView.addAnnotation(geometry)
                         }
                     }
                 }
             }
-            self.hasSeededData = true
+            print("\(name) GeoJSON loaded and rendered successfully.")
+
         } catch {
-            print("Failed to load geojson: \(error)")
+            print("Failed to load geojson '\(name)': \(error)")
         }
     }
     
@@ -62,9 +69,9 @@ final class GeoJSONDecoderManager {
                         return (name, objectType)
                     }
                     
-                    let category = json["category"] as? [String] ?? nil
-                    let activity = json["activity"] as? String ?? nil
-                    let hall = json["hall"] as? String ?? ""
+                    let category = json["category"] as? [String]
+                    let activity = json["activity"] as? String
+                    let hall = json["hall"] as? String
 
                     let brand = Brand(
                         name: name,
