@@ -8,7 +8,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack{
-            MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand)
+            MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand, displayMode: $viewModel.selectedDisplayMode)
                 .edgesIgnoringSafeArea(.all)
                 .id(viewModel.selectedBrand)
 
@@ -131,6 +131,12 @@ struct ContentView: View {
             }
             .presentationDetents([.fraction(0.5)])
             .presentationDragIndicator(.visible)
+        }
+        .safeAreaInset(edge: .bottom) {
+            HStack(alignment: .center) {
+                SegmentedControlView(displayMode: $viewModel.selectedDisplayMode)
+            }
+            .padding(.bottom, 40)
         }
         .onTapGesture {
             isFocused = false

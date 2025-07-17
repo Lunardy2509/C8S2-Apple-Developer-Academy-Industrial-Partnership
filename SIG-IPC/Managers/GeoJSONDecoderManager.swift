@@ -39,7 +39,7 @@ final class GeoJSONDecoderManager {
                            hasZoomed = true
                        }
                         
-                        if ["tunnel", "wall"].contains(category){
+                        if !["tunnel", "wall"].contains(category){
                             mapView.addAnnotation(geometry)
                         }
                     }
@@ -62,8 +62,8 @@ final class GeoJSONDecoderManager {
                         return (name, objectType)
                     }
                     
-                    let category = json["category"] as? [String] ?? []
-                    let activity = json["activity"] as? [String] ?? []
+                    let category = json["category"] as? [String] ?? nil
+                    let activity = json["activity"] as? String ?? nil
                     let hall = json["hall"] as? String ?? ""
 
                     let brand = Brand(
@@ -74,7 +74,7 @@ final class GeoJSONDecoderManager {
                         activity: activity
                     )
                     
-                    print("Add Data \(brand.name)")
+                    print("Add Data \(brand.name) with activity \(brand.activity ?? "")")
                     BrandData.brands.append(brand)
                     return (name, objectType)
                 }

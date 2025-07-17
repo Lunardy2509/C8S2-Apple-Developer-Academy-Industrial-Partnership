@@ -157,8 +157,8 @@
         "name": "Wall",
         "object_type": "wall",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -195,8 +195,8 @@
         "name": "Wall",
         "object_type": "wall",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -233,8 +233,8 @@
         "name": "Main Entrance",
         "object_type": "gate",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -271,8 +271,8 @@
         "name": "Registration Booth 1",
         "object_type": "registration booth",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -309,8 +309,8 @@
         "name": "Registration Booth 2",
         "object_type": "registration booth",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -348,7 +348,7 @@
         "object_type": "registration booth",
         "hall": "Hall A",
         "activity": "registration",
-        "category": ""
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -385,8 +385,8 @@
         "name": "Side Entrance",
         "object_type": "gate",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -423,8 +423,8 @@
         "name": "Registration Booth 3",
         "object_type": "registration booth",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -498,8 +498,8 @@
         "name": "Wall",
         "object_type": "wall",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -536,8 +536,8 @@
         "name": "Wall",
         "object_type": "wall",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -574,8 +574,8 @@
         "name": "Wall",
         "object_type": "wall",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -612,8 +612,8 @@
         "name": "A to C",
         "object_type": "tunnel",
         "hall": "Hall A",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -658,8 +658,8 @@
         "name": "C to A",
         "object_type": "tunnel",
         "hall": "Hall C",
-        "activity": "",
-        "category": ""
+        "activity": null,
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -717,7 +717,7 @@
         "object_type": "stage",
         "hall": "A",
         "activity": "stage",
-        "category": ""
+        "category": null
       },
       "geometry": {
         "coordinates": [
@@ -794,7 +794,7 @@
         "name": "Hanasui",
         "object_type": "booth",
         "hall": "Hall A",
-        "activity": "",
+        "activity": null,
         "category": [
           "Skin Care",
           "Makeup",
@@ -878,7 +878,7 @@
         "name": "Viva Cosmetics",
         "object_type": "booth",
         "hall": "Hall A",
-        "activity": "",
+        "activity": null,
         "category": [
           "Body",
           "Fragrance",
@@ -924,7 +924,7 @@
         "name": "Kojie San",
         "object_type": "booth",
         "hall": "Hall A",
-        "activity": "",
+        "activity": null,
         "category": [
           "Body",
           "Men's care",
@@ -972,7 +972,7 @@
           "Make Up",
           "Hair"
         ],
-        "activity": ["Photobooth"]
+        "activity": "Photobooth"
       },
       "geometry": {
         "coordinates": [
@@ -1014,7 +1014,7 @@
           "Skin Care",
           "Fragrance"
         ],
-        "activity": ["Barber"]
+        "activity": "Barber"
       },
       "geometry": {
         "coordinates": [
@@ -1051,7 +1051,7 @@
         "hall": "Cendrawasih",
         "object_type": "booth",
         "category": ["Hair"],
-        "activity": ["Salon"]
+        "activity": "Salon"
       },
       "geometry": {
         "coordinates": [
@@ -1088,7 +1088,7 @@
         "hall": "Cendrawasih",
         "object_type": "booth",
         "category": ["Make Up", "Skin Care"],
-        "activity": ["Game"]
+        "activity": "Game"
       },
       "geometry": {
         "coordinates": [
@@ -1125,7 +1125,7 @@
           "hall": "Cendrawasih",
           "object_type": "booth",
           "category": ["Body", "Hair", "Skin Care", "Make Up"],
-          "activity": ["Game", "Photobooth"]
+          "activity": "Game"
       },
       "geometry": {
         "coordinates": [
@@ -1149,6 +1149,333 @@
             [
               106.6524725844626,
               -6.302064228174231
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Makarizo",
+        "hall": "Hall B",
+        "object_type": "booth",
+        "activity": null,
+        "category": [
+          "Hair"
+        ]
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65252860138622,
+              -6.3020634361784715
+            ],
+            [
+              106.65252860138622,
+              -6.302100322731135
+            ],
+            [
+              106.65256571219965,
+              -6.302100322731135
+            ],
+            [
+              106.65256571219965,
+              -6.3020634361784715
+            ],
+            [
+              106.65252860138622,
+              -6.3020634361784715
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Skintific",
+        "hall": "Hall B",
+        "object_type": "booth",
+        "activity": "skin detect",
+        "category": [
+          "Skincare",
+          "Make Up"
+        ]
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65252909619653,
+              -6.302116060993072
+            ],
+            [
+              106.65252909619653,
+              -6.302135241998627
+            ],
+            [
+              106.65256868106599,
+              -6.302135241998627
+            ],
+            [
+              106.65256868106599,
+              -6.302116060993072
+            ],
+            [
+              106.65252909619653,
+              -6.302116060993072
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "The Body Shop",
+        "hall": "Hall B",
+        "object_type": "booth",
+        "activity": null,
+        "category": [
+          "Body",
+          "Fragrance"
+        ]
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65252909619653,
+              -6.3021436029493
+            ],
+            [
+              106.65252909619653,
+              -6.302160324851158
+            ],
+            [
+              106.65257016549913,
+              -6.302160324851158
+            ],
+            [
+              106.65257016549913,
+              -6.3021436029493
+            ],
+            [
+              106.65252909619653,
+              -6.3021436029493
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": 31
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pink",
+        "hall": "Hall B",
+        "object_type": "booth",
+        "activity": "Photo Booth",
+        "category": [
+          "Body"
+        ]
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65258303058062,
+              -6.302098847269633
+            ],
+            [
+              106.65258303058062,
+              -6.30213622563997
+            ],
+            [
+              106.65261766734034,
+              -6.30213622563997
+            ],
+            [
+              106.65261766734034,
+              -6.302098847269633
+            ],
+            [
+              106.65258303058062,
+              -6.302098847269633
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": 32
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Somethinc",
+        "hall": "Hall B",
+        "object_type": "booth",
+        "activity": null,
+        "category": [
+          "Skincare"
+        ]
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65258451501376,
+              -6.302145570231886
+            ],
+            [
+              106.65258451501376,
+              -6.302161308492458
+            ],
+            [
+              106.65261964658379,
+              -6.302161308492458
+            ],
+            [
+              106.65261964658379,
+              -6.302145570231886
+            ],
+            [
+              106.65258451501376,
+              -6.302145570231886
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Wall",
+        "object_type": "wall",
+        "hall": "Hall A",
+        "activity": null,
+        "category": null
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65250781937976,
+              -6.302034418756719
+            ],
+            [
+              106.65250781937976,
+              -6.302141143848004
+            ],
+            [
+              106.65251375711017,
+              -6.302141143848004
+            ],
+            [
+              106.65251375711017,
+              -6.302034418756719
+            ],
+            [
+              106.65250781937976,
+              -6.302034418756719
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": 34
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "C to B",
+        "object_type": "tunnel",
+        "hall": "Hall C",
+        "activity": null,
+        "category": null
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65251029343352,
+              -6.302013270464329
+            ],
+            [
+              106.65251029343352,
+              -6.302034418756719
+            ],
+            [
+              106.65252909624542,
+              -6.302029500549139
+            ],
+            [
+              106.65251029343352,
+              -6.302013270464329
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "B to C",
+        "object_type": "tunnel",
+        "hall": "Hall B",
+        "activity": null,
+        "category": null
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              106.65249990240585,
+              -6.302144094771933
+            ],
+            [
+              106.65249990240585,
+              -6.3021549148261755
+            ],
+            [
+              106.65251078824389,
+              -6.30215343936473
+            ],
+            [
+              106.65251078824389,
+              -6.302163275777502
+            ],
+            [
+              106.65252315851507,
+              -6.302162292136259
+            ],
+            [
+              106.65252315851507,
+              -6.302140652027916
+            ],
+            [
+              106.6525167259743,
+              -6.302140160206676
+            ],
+            [
+              106.6525167259743,
+              -6.302150488440844
+            ],
+            [
+              106.65250979862327,
+              -6.302144094771933
+            ],
+            [
+              106.65249990240585,
+              -6.302144094771933
             ]
           ]
         ],
