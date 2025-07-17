@@ -39,7 +39,7 @@ final class GeoJSONDecoderManager {
                            hasZoomed = true
                        }
                         
-                        if ["tunnel", "wall"].contains(category){
+                        if ["tunnel", "booth"].contains(category){
                             mapView.addAnnotation(geometry)
                         }
                     }
