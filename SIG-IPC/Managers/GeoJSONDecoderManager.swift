@@ -62,20 +62,23 @@ final class GeoJSONDecoderManager {
                         return (name, objectType)
                     }
                     
-                    let category = json["category"] as? [String] ?? []
-                    let activity = json["activity"] as? [String] ?? []
-                    let hall = json["hall"] as? String ?? ""
-
-                    let brand = Brand(
-                        name: name,
-                        hall: hall,
-                        objectType: objectType,
-                        category: category,
-                        activity: activity
-                    )
+                    if objectType == "booth" {
+                        let category = json["category"] as? [String] ?? []
+                        let activity = json["activity"] as? [String] ?? []
+                        let hall = json["hall"] as? String ?? ""
+                        
+                        let brand = Brand(
+                            name: name,
+                            hall: hall,
+                            objectType: objectType,
+                            category: category,
+                            activity: activity
+                        )
+                        
+                        print("Adding Booth to Data: \(brand.name)")
+                        BrandData.brands.append(brand)
+                    }
                     
-                    print("Add Data \(brand.name)")
-                    BrandData.brands.append(brand)
                     return (name, objectType)
                 }
             }

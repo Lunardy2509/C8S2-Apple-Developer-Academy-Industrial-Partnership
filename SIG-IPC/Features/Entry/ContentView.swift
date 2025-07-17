@@ -13,26 +13,24 @@ struct ContentView: View {
     }
     
     func renderSearchBar() -> some View {
-        VStack {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
-                    .font(.system(size: 15))
-                
-                TextField("Cari brand Anda", text: $viewModel.searchText)
-                    .padding(2)
-                    .focused($isFocused)
-                    .onSubmit {
-                        viewModel.selectedBrand = [viewModel.searchText]
-                    }
-            }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(8)
-            .padding(.horizontal)
-            .onTapGesture {
-                isFocused = true
-            }
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
+                .font(.system(size: 15))
+            
+            TextField("Cari brand Anda", text: $viewModel.searchText)
+                .padding(2)
+                .focused($isFocused)
+                .onSubmit {
+                    viewModel.selectedBrand = [viewModel.searchText]
+                }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(8)
+        .padding(.horizontal)
+        .onTapGesture {
+            isFocused = true
         }
     }
     
@@ -136,29 +134,12 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         HStack {
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.gray)
-                                    .font(.system(size: 15))
-                                
-                                TextField("Cari brand Anda", text: $viewModel.searchText)
-                                    .padding(2)
-                                    .focused($isFocused)
-                                    .onSubmit {
-                                        viewModel.selectedBrand = [viewModel.searchText]
-                                    }
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(8)
-                            .onTapGesture {
-                                isFocused = true
-                            }
-                            
+                            renderSearchBar()
                             renderCategoryBtn()
                         }
                         .padding(.horizontal)
 
+                        /// conditionally render suggestions list 
                         if isFocused && !viewModel.searchSuggestions.isEmpty {
                             List(viewModel.searchSuggestions, id: \.self) { suggestion in
                                 Text(suggestion)
