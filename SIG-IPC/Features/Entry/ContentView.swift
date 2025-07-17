@@ -13,24 +13,26 @@ struct ContentView: View {
     }
     
     func renderSearchBar() -> some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-                .font(.system(size: 15))
-
-            TextField("Cari brand Anda", text: $viewModel.searchText)
-                .padding(2)
-                .focused($isFocused)
-                .onSubmit {
-                    viewModel.selectedBrand = [viewModel.searchText]
-                }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(8)
-        .padding(.horizontal)
-        .onTapGesture {
-            isFocused = true
+        VStack {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 15))
+                
+                TextField("Cari brand Anda", text: $viewModel.searchText)
+                    .padding(2)
+                    .focused($isFocused)
+                    .onSubmit {
+                        viewModel.selectedBrand = [viewModel.searchText]
+                    }
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(8)
+            .padding(.horizontal)
+            .onTapGesture {
+                isFocused = true
+            }
         }
     }
     
@@ -128,33 +130,72 @@ struct ContentView: View {
     }
     
     var body: some View {
-        ZStack{
-            renderMap()
+            ZStack {
+                renderMap()
 
-            VStack{
-                HStack{
-                    renderSearchBar()
-                    renderCategoryBtn()
-                }
-                .padding()
-                
-                HStack{
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        HStack {
+                            HStack {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 15))
+                                
+                                TextField("Cari brand Anda", text: $viewModel.searchText)
+                                    .padding(2)
+                                    .focused($isFocused)
+                                    .onSubmit {
+                                        viewModel.selectedBrand = [viewModel.searchText]
+                                    }
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(8)
+                            .onTapGesture {
+                                isFocused = true
+                            }
+                            
+                            renderCategoryBtn()
+                        }
+                        .padding(.horizontal)
+
+                        if isFocused && !viewModel.searchSuggestions.isEmpty {
+                            List(viewModel.searchSuggestions, id: \.self) { suggestion in
+                                Text(suggestion)
+                                    .onTapGesture {
+                                        viewModel.selectSuggestion(suggestion)
+                                        isFocused = false
+                                    }
+                            }
+                            .listStyle(.plain)
+                            .background(Color.white)
+                            .cornerRadius(8)
+                            .frame(maxHeight: 200)
+                            .padding(.horizontal)
+                            .shadow(radius: 5)
+                        }
+                    }
+                    .padding(.top)
+                    
                     Spacer()
-                    renderRecenterBtn()
+                    
+                    HStack {
+                        Spacer()
+                        renderRecenterBtn()
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
                 }
-                .padding(.horizontal)
-                Spacer()
             }
             .sheet(isPresented: $viewModel.showFilter) {
                 renderCategorySheet()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             }
-            .presentationDetents([.fraction(0.5)])
-            .presentationDragIndicator(.visible)
+            .onTapGesture {
+                isFocused = false
+            }
         }
-        .onTapGesture {
-            isFocused = false
-        }
-    }
 }
 
 #Preview {
