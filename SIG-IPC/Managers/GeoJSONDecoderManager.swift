@@ -39,7 +39,7 @@ final class GeoJSONDecoderManager {
                            hasZoomed = true
                        }
                         
-                        if ["tunnel", "booth"].contains(category){
+                        if ["tunnel", "booth", "stage"].contains(category){
                             mapView.addAnnotation(geometry)
                         }
                     }
@@ -62,7 +62,7 @@ final class GeoJSONDecoderManager {
                         return (name, objectType)
                     }
                     
-                    if objectType == "booth" {
+                    if objectType == "booth" || objectType == "event" {
                         let category = json["category"] as? [String] ?? []
                         let activity = json["activity"] as? [String] ?? []
                         let hall = json["hall"] as? String ?? ""
