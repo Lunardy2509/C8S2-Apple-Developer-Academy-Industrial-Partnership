@@ -71,7 +71,7 @@ final class GeoJSONDecoderManager {
                         hall: hall,
                         objectType: objectType,
                         category: category,
-                        activity: activity,
+                        activity: activity
                     )
                     
                     print("Add Data \(brand.name)")
