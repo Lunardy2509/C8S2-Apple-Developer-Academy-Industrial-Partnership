@@ -1,15 +1,10 @@
-//
-//  GeoJSONDecoderManager.swift
-//  SIG-IPC
-//
-//  Created by jonathan calvin sutrisna on 16/07/25.
-//
-
 import Foundation
 import MapKit
 
 final class GeoJSONDecoderManager {
     static let shared = GeoJSONDecoderManager()
+    private var hasSeededData = false
+    
     private init() {}
     
     func loadGeoJSON(on mapView: MKMapView) {
@@ -17,7 +12,7 @@ final class GeoJSONDecoderManager {
             print("GeoJSON file not found")
             return
         }
-
+        
         do {
             let data = try Data(contentsOf: url)
             let decoder = MKGeoJSONDecoder()
@@ -33,41 +28,61 @@ final class GeoJSONDecoderManager {
                         mapView.addOverlay(overlay)
                     }
 
-                    if let annotation = geometry as? MKAnnotation {
-                        mapView.addAnnotation(annotation)
-                    }
-
                     if let polygon = geometry as? MKPolygon {
-                        polygon.title = extractFeatureID(from: mkFeature)
+                        let (title, category) = extractFeatureID(from: mkFeature)
+                        polygon.title = title
                         mapView.addOverlay(polygon)
-
+                        
                         if !hasZoomed {
                            let region = MKCoordinateRegion(polygon.boundingMapRect)
                            mapView.setRegion(region, animated: true)
                            hasZoomed = true
                        }
+                        
+                        if ["tunnel", "wall"].contains(category){
+                            mapView.addAnnotation(geometry)
+                        }
                     }
                 }
             }
+            self.hasSeededData = true
         } catch {
             print("Failed to load geojson: \(error)")
         }
     }
     
-    private func extractFeatureID(from feature: MKGeoJSONFeature) -> String? {
-        guard let propertiesData = feature.properties else { return nil }
+    private func extractFeatureID(from feature: MKGeoJSONFeature) -> (String?, String) {
+        guard let propertiesData = feature.properties else { return (nil, "") }
         
         do {
             if let json = try JSONSerialization.jsonObject(with: propertiesData) as? [String: Any] {
-                if let id = json["id"] as? String {
-                    return id
+                if let name = json["name"] as? String {
+                    let objectType = json["object_type"] as? String ?? ""
+                    if self.hasSeededData {
+                        return (name, objectType)
+                    }
+                    
+                    let category = json["category"] as? [String] ?? []
+                    let activity = json["activity"] as? [String] ?? []
+                    let hall = json["hall"] as? String ?? ""
+
+                    let brand = Brand(
+                        name: name,
+                        hall: hall,
+                        objectType: objectType,
+                        category: category,
+                        activity: activity,
+                    )
+                    
+                    print("Add Data \(brand.name)")
+                    BrandData.brands.append(brand)
+                    return (name, objectType)
                 }
             }
         } catch {
             print("Error decoding properties: \(error)")
         }
         
-        return nil
+        return (nil, "")
     }
-
 }

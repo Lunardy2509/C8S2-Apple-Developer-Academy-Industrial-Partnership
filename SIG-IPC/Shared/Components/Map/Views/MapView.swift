@@ -1,11 +1,11 @@
-import SwiftUI
 import MapKit
+import SwiftUI
 
 struct MapView: UIViewRepresentable {
     @Binding var userLocation: CLLocationCoordinate2D?
     @Binding var region: MKCoordinateRegion
     @Binding var shouldRecenter: Bool
-    @Binding var selectedBrand: String
+    @Binding var selectedBrand: [String]
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -24,10 +24,13 @@ struct MapView: UIViewRepresentable {
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
         if shouldRecenter, let userLocation = self.userLocation {
-            self.region = MKCoordinateRegion(
-                center: userLocation,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-            )
+            DispatchQueue.main.async {
+                self.region = MKCoordinateRegion(
+                    center: userLocation,
+                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                )
+            }
+            
             uiView.setRegion(region, animated: true)
             DispatchQueue.main.async {
                 self.shouldRecenter = false
@@ -57,19 +60,40 @@ struct MapView: UIViewRepresentable {
             if let polygon = overlay as? MKPolygon {
                 let renderer = MKPolygonRenderer(polygon: polygon)
 
-                let title = polygon.title?.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-                let selected = parent.selectedBrand.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-
-                if title == selected {
+                let title = polygon.title?.lowercased() ?? ""
+                let selectedBrands = parent.selectedBrand.map {
+                    $0.lowercased()
+                }
+                
+                if selectedBrands.contains(title) {
                     renderer.fillColor = UIColor.green.withAlphaComponent(0.4)
                     renderer.strokeColor = UIColor.green
                 } else {
-                    renderer.fillColor = UIColor.red.withAlphaComponent(0.3)
-                    renderer.strokeColor = UIColor.red
+                    if ["hall a", "hall b", "hall cendrawasih"].contains(title) {
+                        renderer.fillColor = UIColor.white
+                        renderer.strokeColor = UIColor(Color(red: 221 / 255, green: 170 / 255, blue: 167 / 255))
+                        renderer.lineWidth = 1.5
+                        return renderer
+                    }
+                    
+                    if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "wall" }) {
+                        renderer.fillColor = UIColor.black.withAlphaComponent(0.6)
+                    } else if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "tunnel" }) {
+                        renderer.fillColor = UIColor.gray.withAlphaComponent(0.5)
+                    } else if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "stage" }) {
+                        renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
+                    } else {
+                        // Booth
+                        if selectedBrands.isEmpty {
+                            renderer.fillColor = UIColor.red.withAlphaComponent(0.4)
+                        } else{
+                            renderer.fillColor = UIColor.red.withAlphaComponent(0.2)
+                        }
+                    }
+                    renderer.strokeColor = UIColor.clear
                 }
 
-                renderer.lineWidth = 1.5
-                print("🎯 Polygon '\(polygon.title ?? "N/A")' vs selected '\(parent.selectedBrand)'")
+                renderer.lineWidth = 1
                 return renderer
             }
 
