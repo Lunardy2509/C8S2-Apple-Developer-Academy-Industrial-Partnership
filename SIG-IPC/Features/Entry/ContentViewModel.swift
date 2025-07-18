@@ -66,10 +66,23 @@ class ContentViewModel: ObservableObject {
     func fetchRecentSearchResults(context: NSManagedObjectContext) -> [CachedSearchResult] {
         let request: NSFetchRequest<CachedSearchResult> = CachedSearchResult.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \CachedSearchResult.timestamp, ascending: false)]
-        request.fetchLimit = 4
 
         do {
-            return try context.fetch(request)
+            let allResults = try context.fetch(request)
+            
+            // deduplicate by name
+            var seenNames = Set<String>()
+            var uniqueResults: [CachedSearchResult] = []
+            
+            for result in allResults {
+                if let name = result.name, !seenNames.contains(name) {
+                    seenNames.insert(name)
+                    uniqueResults.append(result)
+                }
+                if uniqueResults.count >= 4 { break }
+            }
+            
+            return uniqueResults
         } catch {
             print("Failed to fetch: \(error)")
             return []
