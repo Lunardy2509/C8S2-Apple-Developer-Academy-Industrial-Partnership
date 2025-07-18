@@ -6,6 +6,44 @@ struct ContentView: View {
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
     
+    private func activateSearchFlowIfNeeded() {
+        guard !viewModel.shouldActivateSearchFlow else { return }
+        viewModel.shouldActivateSearchFlow = true
+
+        withAnimation {
+            viewModel.selectedDisplayMode = .brand
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation {
+                viewModel.showSegmentedControl = false
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isFocused = true
+                viewModel.shouldActivateSearchFlow = false
+            }
+        }
+    }
+    private func segmentedControlInset() -> some View {
+        Group {
+            if viewModel.showSegmentedControl {
+                SegmentedControlView(displayMode: $viewModel.selectedDisplayMode)
+                    .padding(.bottom, 40)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showSegmentedControl)
+    }
+    private func dismissKeyboardIfFocused() {
+        if isFocused {
+            isFocused = false
+            withAnimation {
+                viewModel.showSegmentedControl = true
+            }
+        }
+    }
+    
     var body: some View {
         ZStack{
             MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand, displayMode: $viewModel.selectedDisplayMode)
@@ -25,14 +63,14 @@ struct ContentView: View {
                             .onSubmit {
                                 viewModel.selectedBrand = [viewModel.searchText]
                             }
+                            .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
+                            .background(Color.white)
+                            .cornerRadius(8)
                     }
                     .padding()
                     .background(Color.white)
                     .cornerRadius(8)
                     .padding(.horizontal)
-                    .onTapGesture {
-                        isFocused = true
-                    }
                     
                     Image(systemName: "line.3.horizontal.decrease")
                         .padding()
@@ -43,7 +81,12 @@ struct ContentView: View {
                         }
                 }
                 .padding()
-                
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        activateSearchFlowIfNeeded()
+                    }
+                )
+
                 HStack{
                     Spacer()
                     Button(action: {
@@ -133,13 +176,10 @@ struct ContentView: View {
             .presentationDragIndicator(.visible)
         }
         .safeAreaInset(edge: .bottom) {
-            HStack(alignment: .center) {
-                SegmentedControlView(displayMode: $viewModel.selectedDisplayMode)
-            }
-            .padding(.bottom, 40)
+            segmentedControlInset()
         }
         .onTapGesture {
-            isFocused = false
+            dismissKeyboardIfFocused()
         }
     }
 }

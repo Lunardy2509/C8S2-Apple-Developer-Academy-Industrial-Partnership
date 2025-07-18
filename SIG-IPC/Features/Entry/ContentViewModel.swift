@@ -9,6 +9,8 @@ class ContentViewModel: ObservableObject {
     @Published var showFilter: Bool = false
     @Published var shouldRecenter: Bool = false
     @Published var selectedDisplayMode: DisplayModeEnum = .brand
+    @Published var showSegmentedControl: Bool = true
+    @Published var shouldActivateSearchFlow: Bool = false
 
     // MARK: Private variable
     private var selectedBrands: [Brand] = []
