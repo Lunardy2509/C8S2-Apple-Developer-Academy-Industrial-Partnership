@@ -6,6 +6,7 @@ struct MapView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var shouldRecenter: Bool
     @Binding var selectedBrand: [String]
+    @Binding var displayMode: DisplayModeEnum
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -37,11 +38,34 @@ struct MapView: UIViewRepresentable {
             }
         }
 
-        // Force overlay re-render
+        uiView.removeAnnotations(uiView.annotations)
+
+        // Force overlay re-render & apply annotations per displayMode
         for overlay in uiView.overlays {
-            if let polygon = overlay as? MKPolygon {
-                uiView.removeOverlay(polygon)
-                uiView.addOverlay(polygon)
+            guard let polygon = overlay as? MKPolygon,
+                  let title = polygon.title?.lowercased(),
+                  let brand = BrandData.brands.first(where: { $0.name.lowercased() == title })
+            else { continue }
+
+            // Re-render overlay
+            uiView.removeOverlay(polygon)
+            uiView.addOverlay(polygon)
+            
+            var annotationTitle: String? = nil
+            switch displayMode {
+            case .brand:
+                annotationTitle = brand.name
+            case .activity:
+                annotationTitle = brand.activity
+            case .liveCrowd:
+                break
+            }
+
+            if let title = annotationTitle {
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = polygon.coordinate
+                annotation.title = title
+                uiView.addAnnotation(annotation)
             }
         }
 
