@@ -75,7 +75,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             hasSetInitialRegion = true
         }
 
-        print("Lokasi pengguna diperbarui: \(coordinate.latitude), \(coordinate.longitude)")
+//        print("Lokasi pengguna diperbarui: \(coordinate.latitude), \(coordinate.longitude)")
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

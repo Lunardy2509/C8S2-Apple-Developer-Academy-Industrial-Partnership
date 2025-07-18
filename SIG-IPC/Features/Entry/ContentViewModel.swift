@@ -49,14 +49,15 @@ class ContentViewModel: ObservableObject {
         self.showFilter = false
     }
     
-    func saveSearchResult(name: String, hall: String, context: NSManagedObjectContext) {
+    func saveSearchResult(brand: Brand, context: NSManagedObjectContext) {
         let entity = CachedSearchResult(context: context)
-        entity.name = name
-        entity.hall = hall
+        entity.name = brand.name
+        entity.hall = brand.hall ?? ""
         entity.timestamp = Date()
 
         do {
             try context.save()
+            print("search result saved")
         } catch {
             print("Failed to save search result: \(error)")
         }

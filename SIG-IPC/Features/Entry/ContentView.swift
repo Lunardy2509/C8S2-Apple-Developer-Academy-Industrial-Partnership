@@ -63,6 +63,7 @@ struct ContentView: View {
                 .onSubmit {
                     if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == viewModel.searchText.lowercased() }) {
                         viewModel.selectedBrand = [matchedBrand]
+                        viewModel.saveSearchResult(brand: matchedBrand, context: context)
                     }
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
@@ -179,9 +180,9 @@ struct ContentView: View {
                     .foregroundColor(.gray)
             }
             .onTapGesture {
-                print("ROW PRESSED")
                 if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
                     viewModel.selectedBrand = [matchedBrand]
+                    viewModel.saveSearchResult(brand: matchedBrand, context: context)
                 }
                 isFocused = false
             }
@@ -193,6 +194,27 @@ struct ContentView: View {
         .padding(.horizontal)
         .shadow(radius: 5)
     }
+    private func renderRecentSearches() -> some View {
+        List(viewModel.recentSearchResults, id: \.self) { result in
+            VStack(alignment: .leading) {
+                Text(result.name ?? "")
+                    .font(.headline)
+                Text(result.hall ?? "")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                Text(result.timestamp?.formatted(date: .abbreviated, time: .shortened) ?? "")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.vertical, 4)
+            .onTapGesture {
+                viewModel.searchText = result.name ?? ""
+            }
+        }
+        .onAppear {
+            viewModel.loadRecentSearchResults(context: context)
+        }
+    }
     
     var body: some View {
             ZStack {
@@ -200,6 +222,8 @@ struct ContentView: View {
                     ZStack {
                         Color.gray.opacity(0.3)
                         /// conditionally render suggestions list
+                        renderRecentSearches()
+                        
                         if !viewModel.searchSuggestions.isEmpty {
                             renderSearchSuggestions()
                         }
