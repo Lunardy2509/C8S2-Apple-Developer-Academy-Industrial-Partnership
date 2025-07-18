@@ -40,12 +40,12 @@ final class GeoJSONDecoderManager {
                         mapView.addOverlay(polygon)
 
                         if !hasZoomed {
-                            let region = MKCoordinateRegion(polygon.boundingMapRect)
-                            mapView.setRegion(region, animated: true)
-                            hasZoomed = true
-                        }
-
-                        if !["tunnel", "wall"].contains(category) {
+                           let region = MKCoordinateRegion(polygon.boundingMapRect)
+                           mapView.setRegion(region, animated: true)
+                           hasZoomed = true
+                       }
+                        
+                        if ["tunnel", "booth", "stage"].contains(category){
                             mapView.addAnnotation(geometry)
                         }
                     }
@@ -69,20 +69,23 @@ final class GeoJSONDecoderManager {
                         return (name, objectType)
                     }
                     
-                    let category = json["category"] as? [String]
-                    let activity = json["activity"] as? String
-                    let hall = json["hall"] as? String
-
-                    let brand = Brand(
-                        name: name,
-                        hall: hall,
-                        objectType: objectType,
-                        category: category,
-                        activity: activity
-                    )
+                    if objectType == "booth" || objectType == "event" {
+                        let category = json["category"] as? [String]
+                        let activity = json["activity"] as? String
+                        let hall = json["hall"] as? String
+                        
+                        let brand = Brand(
+                            name: name,
+                            hall: hall,
+                            objectType: objectType,
+                            category: category,
+                            activity: activity
+                        )
+                        
+                        print("Add Data \(brand.name) with activity \(brand.activity ?? "")")
+                        BrandData.brands.append(brand)
+                    }
                     
-                    print("Add Data \(brand.name) with activity \(brand.activity ?? "")")
-                    BrandData.brands.append(brand)
                     return (name, objectType)
                 }
             }
