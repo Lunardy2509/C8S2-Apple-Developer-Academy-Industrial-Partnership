@@ -59,73 +59,76 @@ struct ContentView: View {
     }
     
     func renderCategorySheet() -> some View {
-        VStack(alignment: .leading) {
-            Text("Category")
-                .font(.title)
-                .padding()
+        ScrollView{
+            VStack(alignment: .leading) {
+                Text("Category")
+                    .font(.title)
+                    .padding()
 
-            ForEach(["Salon", "Hair", "Make Up", "Skin Care", "Body", "Nails", "Fragrance", "Tools", "Beauty Supplement", "Men's Care"], id: \.self) { category in
-                HStack(alignment: .center) {
-                    ZStack {
-                        Circle()
-                            .strokeBorder(Color.gray, lineWidth: 1.5)
-                            .background(Circle().fill(Color.white))
-                            .frame(width: 20, height: 20)
-
-                        if viewModel.selectedCategory == category {
+                ForEach(["Salon", "Hair", "Make Up", "Skin Care", "Body", "Nails", "Fragrance", "Tools", "Beauty Supplement", "Men's Care"], id: \.self) { category in
+                    HStack(alignment: .center) {
+                        ZStack {
                             Circle()
-                                .fill(Color.blue)
-                                .frame(width: 10, height: 10)
+                                .strokeBorder(Color.gray, lineWidth: 1.5)
+                                .background(Circle().fill(Color.white))
+                                .frame(width: 20, height: 20)
+
+                            if viewModel.selectedCategory == category {
+                                Circle()
+                                    .fill(Color.blue)
+                                    .frame(width: 10, height: 10)
+                            }
                         }
+                        .onTapGesture {
+                            if viewModel.selectedCategory == category {
+                                viewModel.selectedCategory = ""
+                            } else {
+                                viewModel.selectedCategory = category
+                            }
+                        }
+
+                        Text(category)
+                            .padding(.leading, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .onTapGesture {
-                        if viewModel.selectedCategory == category {
-                            viewModel.selectedCategory = ""
-                        } else {
-                            viewModel.selectedCategory = category
-                        }
+                    .padding(.horizontal)
+                    .padding(.vertical, 2)
+                }
+
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        viewModel.selectedCategory = ""
+                    }) {
+                        Text("Reset")
+                            .foregroundStyle(Color.black)
+                            .frame(width: 120)
+                            .padding()
+                            .background(Color.gray.opacity(0.3))
+                            .cornerRadius(18)
                     }
 
-                    Text(category)
-                        .padding(.leading, 8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Button(action: {
+                        viewModel.applyCategory()
+                    }) {
+                        Text("Apply")
+                            .foregroundStyle(Color.white)
+                            .frame(width: 120)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(18)
+                    }
+                    Spacer()
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 4)
-            }
+                .padding(.top, 16)
 
-            HStack {
-                Spacer()
-                Button(action: {
-                    viewModel.selectedCategory = ""
-                }) {
-                    Text("Reset")
-                        .foregroundStyle(Color.black)
-                        .frame(width: 120)
-                        .padding()
-                        .background(Color.gray.opacity(0.3))
-                        .cornerRadius(18)
-                }
-
-                Button(action: {
-                    viewModel.applyCategory()
-                }) {
-                    Text("Apply")
-                        .foregroundStyle(Color.white)
-                        .frame(width: 120)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(18)
-                }
                 Spacer()
             }
-            .padding(.horizontal)
-            .padding(.top, 16)
-
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
+        }
+        
     
     var body: some View {
             ZStack {
@@ -170,7 +173,7 @@ struct ContentView: View {
             }
             .sheet(isPresented: $viewModel.showFilter) {
                 renderCategorySheet()
-                    .presentationDetents([.large])
+                    .presentationDetents([.fraction(0.65), .fraction(0.99)])
                     .presentationDragIndicator(.visible)
             }
             .onTapGesture {
