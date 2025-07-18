@@ -3,8 +3,10 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
-    @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
+    
+    @FocusState private var isFocused: Bool
+    @Environment(\.colorScheme) var colorScheme
     
     func renderMap() -> some View {
         MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand)
@@ -15,17 +17,18 @@ struct ContentView: View {
     func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundStyle(.gray)
                 .font(.system(size: 15))
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
+                .foregroundStyle(Color.black)
                 .padding(2)
                 .focused($isFocused)
                 .onSubmit {
                     viewModel.selectedBrand = [viewModel.searchText]
                 }
         }
-        .padding()
+        .padding(8)
         .background(Color.white)
         .cornerRadius(8)
         .padding(.horizontal)
@@ -37,6 +40,7 @@ struct ContentView: View {
     func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
             .padding()
+            .foregroundStyle(Color.black)
             .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
             .cornerRadius(8)
             .onTapGesture {
@@ -127,59 +131,60 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        }
+    }
         
     
     var body: some View {
-            ZStack {
-                renderMap()
+        ZStack {
+            renderMap()
 
+            VStack(spacing: 0) {
                 VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        HStack {
-                            renderSearchBar()
-                            renderCategoryBtn()
-                        }
-                        .padding(.horizontal)
-
-                        /// conditionally render suggestions list 
-                        if isFocused && !viewModel.searchSuggestions.isEmpty {
-                            List(viewModel.searchSuggestions, id: \.self) { suggestion in
-                                Text(suggestion)
-                                    .onTapGesture {
-                                        viewModel.selectSuggestion(suggestion)
-                                        isFocused = false
-                                    }
-                            }
-                            .listStyle(.plain)
-                            .background(Color.white)
-                            .cornerRadius(8)
-                            .frame(maxHeight: 200)
-                            .padding(.horizontal)
-                            .shadow(radius: 5)
-                        }
-                    }
-                    .padding(.top)
-                    
-                    Spacer()
-                    
                     HStack {
-                        Spacer()
-                        renderRecenterBtn()
+                        renderSearchBar()
+                        renderCategoryBtn()
                     }
                     .padding(.horizontal)
-                    .padding(.bottom)
+
+                    /// conditionally render suggestions list
+                    if isFocused && !viewModel.searchSuggestions.isEmpty {
+                        List(viewModel.searchSuggestions, id: \.self) { suggestion in
+                            Text(suggestion)
+                                .onTapGesture {
+                                    viewModel.selectSuggestion(suggestion)
+                                    isFocused = false
+                                }
+                        }
+                        .listStyle(.plain)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .frame(maxHeight: 200)
+                        .padding(.horizontal)
+                        .shadow(radius: 5)
+                    }
                 }
-            }
-            .sheet(isPresented: $viewModel.showFilter) {
-                renderCategorySheet()
-                    .presentationDetents([.fraction(0.65), .fraction(0.99)])
-                    .presentationDragIndicator(.visible)
-            }
-            .onTapGesture {
-                isFocused = false
+                .padding(.top)
+                
+                HStack {
+                    Spacer()
+                    renderRecenterBtn()
+                }
+                .padding(.top)
+                .padding(.horizontal)
+                
+                Spacer()
+
             }
         }
+        .sheet(isPresented: $viewModel.showFilter) {
+            renderCategorySheet()
+                .presentationDetents([.fraction(0.65), .fraction(0.99)])
+                .presentationDragIndicator(.visible)
+        }
+        .onTapGesture {
+            isFocused = false
+        }
+    }
 }
 
 #Preview {

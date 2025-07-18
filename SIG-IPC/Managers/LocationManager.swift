@@ -55,7 +55,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             self.userLocation = coordinate
             self.region = MKCoordinateRegion(
                 center: coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                span: MKCoordinateSpan(latitudeDelta: 0.0001, longitudeDelta: 0.0001)
             )
         }
     }
