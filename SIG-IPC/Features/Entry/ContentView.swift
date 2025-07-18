@@ -142,11 +142,13 @@ struct ContentView: View {
                         /// conditionally render suggestions list 
                         if isFocused && !viewModel.searchSuggestions.isEmpty {
                             List(viewModel.searchSuggestions, id: \.self) { suggestion in
-                                Text(suggestion)
-                                    .onTapGesture {
-                                        viewModel.selectSuggestion(suggestion)
-                                        isFocused = false
-                                    }
+                                HStack {
+                                    Text(suggestion.name)
+                                        .font(.headline)
+                                    Text("\(suggestion.hall)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
                             }
                             .listStyle(.plain)
                             .background(Color.white)

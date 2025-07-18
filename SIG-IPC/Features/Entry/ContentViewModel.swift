@@ -9,7 +9,7 @@ class ContentViewModel: ObservableObject {
     @Published var selectedBrand: [String] = []
     @Published var showFilter: Bool = false
     @Published var shouldRecenter: Bool = false
-    @Published var searchSuggestions: [String] = []
+    @Published var searchSuggestions: [SearchResult] = []
 
     // MARK: Private variable
     private var selectedBrands: [Brand] = []
@@ -19,11 +19,11 @@ class ContentViewModel: ObservableObject {
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .removeDuplicates() // don't search if the text hasn't changed
-            .map { [weak self] text -> [String] in
+            .map { [weak self] text -> [SearchResult] in
                 guard !text.isEmpty else { return [] }
                 return BrandData.brands
                     .filter { $0.name.localizedCaseInsensitiveContains(text) }
-                    .map { $0.name } // return only names
+                    .map { SearchResult(name: $0.name, hall: $0.hall) }
             }
             .assign(to: \.searchSuggestions, on: self)
             .store(in: &cancellables)
