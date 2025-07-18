@@ -25,7 +25,7 @@ struct ContentView: View {
                     viewModel.selectedBrand = [viewModel.searchText]
                 }
         }
-        .padding()
+        .padding(10)
         .background(Color.white)
         .cornerRadius(8)
         .padding(.horizontal)
@@ -36,9 +36,9 @@ struct ContentView: View {
     
     func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
-            .padding()
+            .padding(10)
             .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
-            .cornerRadius(8)
+            .cornerRadius(6)
             .onTapGesture {
                 viewModel.showFilter = true
             }

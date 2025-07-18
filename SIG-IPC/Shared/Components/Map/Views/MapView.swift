@@ -27,7 +27,7 @@ struct MapView: UIViewRepresentable {
             DispatchQueue.main.async {
                 self.region = MKCoordinateRegion(
                     center: userLocation,
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    span: MKCoordinateSpan(latitudeDelta: 0.0001, longitudeDelta: 0.0001)
                 )
             }
             
