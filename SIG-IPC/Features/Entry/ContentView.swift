@@ -2,6 +2,8 @@ import MapKit
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.managedObjectContext) private var context
+
     @StateObject private var locationManager = LocationManager()
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
@@ -44,13 +46,12 @@ struct ContentView: View {
         }
     }
     
-    func renderMap() -> some View {
+    private func renderMap() -> some View {
         MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand, displayMode: $viewModel.selectedDisplayMode)
             .edgesIgnoringSafeArea(.all)
             .id(viewModel.selectedBrand)
     }
-    
-    func renderSearchBar() -> some View {
+    private func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
@@ -60,7 +61,9 @@ struct ContentView: View {
                 .padding(2)
                 .focused($isFocused)
                 .onSubmit {
-                    viewModel.selectedBrand = [viewModel.searchText]
+                    if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == viewModel.searchText.lowercased() }) {
+                        viewModel.selectedBrand = [matchedBrand]
+                    }
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
         }
@@ -74,8 +77,7 @@ struct ContentView: View {
             }
         )
     }
-    
-    func renderCategoryBtn() -> some View {
+    private func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
             .padding()
             .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
@@ -84,8 +86,7 @@ struct ContentView: View {
                 viewModel.showFilter = true
             }
     }
-    
-    func renderRecenterBtn() -> some View {
+    private func renderRecenterBtn() -> some View {
         Button(action: {
             viewModel.shouldRecenter = true
         }, label:{
@@ -98,8 +99,7 @@ struct ContentView: View {
                 .shadow(radius: 3)
         })
     }
-    
-    func renderCategorySheet() -> some View {
+    private func renderCategorySheet() -> some View {
         ScrollView{
             VStack(alignment: .leading) {
                 Text("Category")
@@ -169,38 +169,56 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         }
-        
+    private func renderSearchSuggestions() -> some View {
+        List(viewModel.searchSuggestions, id: \.self) { suggestion in
+            HStack {
+                Text(suggestion.name)
+                    .font(.headline)
+                Text("\(suggestion.hall)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            .onTapGesture {
+                print("ROW PRESSED")
+                if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
+                    viewModel.selectedBrand = [matchedBrand]
+                }
+                isFocused = false
+            }
+        }
+        .listStyle(.plain)
+        .background(Color.white)
+        .cornerRadius(8)
+        .frame(maxHeight: 200)
+        .padding(.horizontal)
+        .shadow(radius: 5)
+    }
     
     var body: some View {
             ZStack {
-                renderMap()
+                if(isFocused) {
+                    ZStack {
+                        Color.gray.opacity(0.3)
+                        /// conditionally render suggestions list
+                        if !viewModel.searchSuggestions.isEmpty {
+                            renderSearchSuggestions()
+                        }
+                    }
+                } else { renderMap() }
 
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         HStack {
                             renderSearchBar()
+                                .onChange(of: viewModel.searchText) { newText in
+                                    if newText.isEmpty {
+                                        viewModel.loadRecentSearchResults(context: context)
+                                    }
+                                }
+
                             renderCategoryBtn()
                         }
                         .padding(.horizontal)
-
-                        /// conditionally render suggestions list 
-                        if isFocused && !viewModel.searchSuggestions.isEmpty {
-                            List(viewModel.searchSuggestions, id: \.self) { suggestion in
-                                HStack {
-                                    Text(suggestion.name)
-                                        .font(.headline)
-                                    Text("\(suggestion.hall)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            .listStyle(.plain)
-                            .background(Color.white)
-                            .cornerRadius(8)
-                            .frame(maxHeight: 200)
-                            .padding(.horizontal)
-                            .shadow(radius: 5)
-                        }
                     }
                     .padding(.top)
                     

@@ -1,4 +1,4 @@
-struct Brand{
+struct Brand: Hashable {
     var name: String
     var hall: String?
     var objectType: String

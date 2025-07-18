@@ -1,18 +1,24 @@
 import Foundation
+import SwiftUICore
+import CoreData
 import Combine
 
 class ContentViewModel: ObservableObject {
     
+    @Environment(\.managedObjectContext) private var context
+    
     // MARK: Published variable
-    @Published var searchText: String = ""
     @Published var selectedCategory: String = ""
-    @Published var selectedBrand: [String] = []
     @Published var showFilter: Bool = false
     @Published var shouldRecenter: Bool = false
     @Published var searchSuggestions: [SearchResult] = []
     @Published var selectedDisplayMode: DisplayModeEnum = .brand
     @Published var showSegmentedControl: Bool = true
     @Published var shouldActivateSearchFlow: Bool = false
+
+    @Published var searchText: String = ""
+    @Published var selectedBrand: [Brand] = []
+    @Published var recentSearchResults: [CachedSearchResult] = []
 
     // MARK: Private variable
     private var selectedBrands: [Brand] = []
@@ -31,12 +37,6 @@ class ContentViewModel: ObservableObject {
             .assign(to: \.searchSuggestions, on: self)
             .store(in: &cancellables)
     }
-    
-    func selectSuggestion(_ suggestion: String) {
-        self.searchText = suggestion
-        self.selectedBrand = [suggestion]
-        self.searchSuggestions = []
-    }
 
     func applyCategory(){
         self.selectedBrands = BrandData.brands.filter {
@@ -44,8 +44,39 @@ class ContentViewModel: ObservableObject {
         }
         self.selectedBrand = []
         for brand in selectedBrands{
-            selectedBrand.append(brand.name)
+            selectedBrand.append(brand)
         }
         self.showFilter = false
     }
+    
+    func saveSearchResult(name: String, hall: String, context: NSManagedObjectContext) {
+        let entity = CachedSearchResult(context: context)
+        entity.name = name
+        entity.hall = hall
+        entity.timestamp = Date()
+
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save search result: \(error)")
+        }
+    }
+    
+    func fetchRecentSearchResults(context: NSManagedObjectContext) -> [CachedSearchResult] {
+        let request: NSFetchRequest<CachedSearchResult> = CachedSearchResult.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \CachedSearchResult.timestamp, ascending: false)]
+        request.fetchLimit = 4
+
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("Failed to fetch: \(error)")
+            return []
+        }
+    }
+    
+    func loadRecentSearchResults(context: NSManagedObjectContext) {
+        self.recentSearchResults = fetchRecentSearchResults(context: context)
+    }
+
 }

@@ -5,7 +5,7 @@ struct MapView: UIViewRepresentable {
     @Binding var userLocation: CLLocationCoordinate2D?
     @Binding var region: MKCoordinateRegion
     @Binding var shouldRecenter: Bool
-    @Binding var selectedBrand: [String]
+    @Binding var selectedBrand: [Brand]
     @Binding var displayMode: DisplayModeEnum
 
     func makeCoordinator() -> Coordinator {
@@ -86,7 +86,7 @@ struct MapView: UIViewRepresentable {
 
                 let title = polygon.title?.lowercased() ?? ""
                 let selectedBrands = parent.selectedBrand.map {
-                    $0.lowercased()
+                    $0.name.lowercased()
                 }
                 
                 if selectedBrands.contains(title) {
