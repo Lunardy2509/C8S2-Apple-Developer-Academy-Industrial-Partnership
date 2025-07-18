@@ -22,11 +22,11 @@ class ContentViewModel: ObservableObject {
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .removeDuplicates() // don't search if the text hasn't changed
-            .map { [weak self] text -> [SearchResult] in
+            .map { text -> [SearchResult] in
                 guard !text.isEmpty else { return [] }
                 return BrandData.brands
                     .filter { $0.name.localizedCaseInsensitiveContains(text) }
-                    .map { SearchResult(name: $0.name, hall: $0.hall) }
+                    .map { SearchResult(name: $0.name, hall: $0.hall ?? "") }
             }
             .assign(to: \.searchSuggestions, on: self)
             .store(in: &cancellables)
