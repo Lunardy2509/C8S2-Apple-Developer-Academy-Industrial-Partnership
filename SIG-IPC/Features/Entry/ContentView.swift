@@ -2,16 +2,19 @@ import MapKit
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var locationManager = LocationManager()
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
     
     func renderMap() -> some View {
-        MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand)
-            .edgesIgnoringSafeArea(.all)
-            .id(viewModel.selectedBrand)
+        MapView(
+            userLocation: $viewModel.userLocation,
+            region: $viewModel.region,
+            shouldRecenter: $viewModel.shouldRecenter,
+            selectedBrand: $viewModel.selectedBrand
+        )
+        .edgesIgnoringSafeArea(.all)
     }
-    
+        
     func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")

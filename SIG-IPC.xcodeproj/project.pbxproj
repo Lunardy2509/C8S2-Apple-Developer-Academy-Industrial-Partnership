@@ -10,9 +10,22 @@
 		AB4808172E265BBD00B3BF4E /* SIG-IPC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SIG-IPC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BDFF79402E2A433100604BCB /* Exceptions for "SIG-IPC" folder in "SIG-IPC" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AB4808162E265BBD00B3BF4E /* SIG-IPC */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AB4808192E265BBD00B3BF4E /* SIG-IPC */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BDFF79402E2A433100604BCB /* Exceptions for "SIG-IPC" folder in "SIG-IPC" target */,
+			);
 			path = "SIG-IPC";
 			sourceTree = "<group>";
 		};
@@ -255,6 +268,7 @@
 				DEVELOPMENT_TEAM = 84KMF7PD4V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SIG-IPC/Info.plist";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "NEEEED LOCATION BABY";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -285,6 +299,7 @@
 				DEVELOPMENT_TEAM = 84KMF7PD4V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SIG-IPC/Info.plist";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "NEEEED LOCATION BABY";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
