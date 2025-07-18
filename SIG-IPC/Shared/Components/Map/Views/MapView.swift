@@ -17,7 +17,7 @@ struct MapView: UIViewRepresentable {
         mapView.delegate = context.coordinator
         mapView.showsCompass = false
         mapView.showsScale = false
-
+        
         GeoJSONDecoderManager.shared.loadGeoJSON(on: mapView)
         return mapView
     }
@@ -32,6 +32,7 @@ struct MapView: UIViewRepresentable {
             }
             
             uiView.setRegion(region, animated: true)
+
             DispatchQueue.main.async {
                 self.shouldRecenter = false
             }
