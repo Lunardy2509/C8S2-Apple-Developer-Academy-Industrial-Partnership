@@ -2,8 +2,9 @@ import MapKit
 import SwiftUI
 
 struct ContentView: View {
+    
     @Environment(\.managedObjectContext) private var context
-
+    
     @StateObject private var locationManager = LocationManager()
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
@@ -11,16 +12,16 @@ struct ContentView: View {
     private func activateSearchFlowIfNeeded() {
         guard !viewModel.shouldActivateSearchFlow else { return }
         viewModel.shouldActivateSearchFlow = true
-
+        
         withAnimation {
             viewModel.selectedDisplayMode = .brand
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             withAnimation {
                 viewModel.showSegmentedControl = false
             }
-
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isFocused = true
                 viewModel.shouldActivateSearchFlow = false
@@ -106,7 +107,7 @@ struct ContentView: View {
                 Text("Category")
                     .font(.title)
                     .padding()
-
+                
                 ForEach(["Salon", "Hair", "Make Up", "Skin Care", "Body", "Nails", "Fragrance", "Tools", "Beauty Supplement", "Men's Care"], id: \.self) { category in
                     HStack(alignment: .center) {
                         ZStack {
@@ -114,7 +115,7 @@ struct ContentView: View {
                                 .strokeBorder(Color.gray, lineWidth: 1.5)
                                 .background(Circle().fill(Color.white))
                                 .frame(width: 20, height: 20)
-
+                            
                             if viewModel.selectedCategory == category {
                                 Circle()
                                     .fill(Color.blue)
@@ -128,7 +129,7 @@ struct ContentView: View {
                                 viewModel.selectedCategory = category
                             }
                         }
-
+                        
                         Text(category)
                             .padding(.leading, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -136,7 +137,7 @@ struct ContentView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 2)
                 }
-
+                
                 HStack {
                     Spacer()
                     Button(action: {
@@ -149,7 +150,7 @@ struct ContentView: View {
                             .background(Color.gray.opacity(0.3))
                             .cornerRadius(18)
                     }
-
+                    
                     Button(action: {
                         viewModel.applyCategory()
                     }) {
@@ -164,12 +165,12 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 16)
-
+                
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        }
+    }
     private func renderSearchSuggestions() -> some View {
         List(viewModel.searchSuggestions, id: \.self) { suggestion in
             HStack {
@@ -195,7 +196,7 @@ struct ContentView: View {
         .shadow(radius: 5)
     }
     private func renderRecentSearches() -> some View {
-        List(viewModel.recentSearchResults, id: \.self) { result in
+        return List(viewModel.recentSearchResults, id: \.self) { result in
             VStack(alignment: .leading) {
                 Text(result.name ?? "")
                     .font(.headline)
@@ -208,66 +209,71 @@ struct ContentView: View {
             }
             .padding(.vertical, 4)
             .onTapGesture {
-                viewModel.searchText = result.name ?? ""
+                if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == result.name?.lowercased() }) {
+                    viewModel.selectedBrand = [matchedBrand]
+                    viewModel.saveSearchResult(brand: matchedBrand, context: context)
+                    isFocused = false
+                }
             }
-        }
-        .onAppear {
-            viewModel.loadRecentSearchResults(context: context)
+            .onAppear {
+                viewModel.loadRecentSearchResults(context: context)
+            }
         }
     }
     
     var body: some View {
-            ZStack {
-                if(isFocused) {
-                    ZStack {
-                        Color.gray.opacity(0.3)
-                        /// conditionally render suggestions list
+        ZStack {
+            if(isFocused) {
+                ZStack {
+                    Color.gray.opacity(0.3)
+                    VStack {
                         renderRecentSearches()
                         
                         if !viewModel.searchSuggestions.isEmpty {
                             renderSearchSuggestions()
                         }
                     }
-                } else { renderMap() }
-
+                }
+            } else { renderMap() }
+            
+            VStack(spacing: 0) {
                 VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        HStack {
-                            renderSearchBar()
-                                .onChange(of: viewModel.searchText) { newText in
-                                    if newText.isEmpty {
-                                        viewModel.loadRecentSearchResults(context: context)
-                                    }
-                                }
-
-                            renderCategoryBtn()
-                        }
-                        .padding(.horizontal)
-                    }
-                    .padding(.top)
-                    
-                    Spacer()
-                    
                     HStack {
-                        Spacer()
-                        renderRecenterBtn()
+                        renderSearchBar()
+                            .onChange(of: viewModel.searchText) { newText in
+                                if newText.isEmpty {
+                                    viewModel.loadRecentSearchResults(context: context)
+                                }
+                            }
+                        
+                        renderCategoryBtn()
                     }
                     .padding(.horizontal)
-                    .padding(.bottom)
                 }
-            }
-            .safeAreaInset(edge: .bottom) {
-                segmentedControlInset()
-            }
-            .sheet(isPresented: $viewModel.showFilter) {
-                renderCategorySheet()
-                    .presentationDetents([.fraction(0.65), .fraction(0.99)])
-                    .presentationDragIndicator(.visible)
-            }
-            .onTapGesture {
-                dismissKeyboardIfFocused()
+                .padding(.top)
+                
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    renderRecenterBtn()
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            segmentedControlInset()
+        }
+        .sheet(isPresented: $viewModel.showFilter) {
+            renderCategorySheet()
+                .presentationDetents([.fraction(0.65), .fraction(0.99)])
+                .presentationDragIndicator(.visible)
+        }
+        .onTapGesture {
+            dismissKeyboardIfFocused()
+        }
+    }
 }
 
 #Preview {
