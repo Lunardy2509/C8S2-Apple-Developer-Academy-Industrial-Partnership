@@ -10,6 +10,9 @@ class ContentViewModel: ObservableObject {
     @Published var showFilter: Bool = false
     @Published var shouldRecenter: Bool = false
     @Published var searchSuggestions: [SearchResult] = []
+    @Published var selectedDisplayMode: DisplayModeEnum = .brand
+    @Published var showSegmentedControl: Bool = true
+    @Published var shouldActivateSearchFlow: Bool = false
 
     // MARK: Private variable
     private var selectedBrands: [Brand] = []
@@ -36,7 +39,9 @@ class ContentViewModel: ObservableObject {
     }
 
     func applyCategory(){
-        self.selectedBrands = BrandData.brands.filter{ $0.category.contains(selectedCategory) }
+        self.selectedBrands = BrandData.brands.filter {
+            $0.category?.contains(selectedCategory) == true
+        }
         self.selectedBrand = []
         for brand in selectedBrands{
             selectedBrand.append(brand.name)

@@ -6,8 +6,46 @@ struct ContentView: View {
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
     
+    private func activateSearchFlowIfNeeded() {
+        guard !viewModel.shouldActivateSearchFlow else { return }
+        viewModel.shouldActivateSearchFlow = true
+
+        withAnimation {
+            viewModel.selectedDisplayMode = .brand
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation {
+                viewModel.showSegmentedControl = false
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isFocused = true
+                viewModel.shouldActivateSearchFlow = false
+            }
+        }
+    }
+    private func segmentedControlInset() -> some View {
+        Group {
+            if viewModel.showSegmentedControl {
+                SegmentedControlView(displayMode: $viewModel.selectedDisplayMode)
+                    .padding(.bottom, 40)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showSegmentedControl)
+    }
+    private func dismissKeyboardIfFocused() {
+        if isFocused {
+            isFocused = false
+            withAnimation {
+                viewModel.showSegmentedControl = true
+            }
+        }
+    }
+    
     func renderMap() -> some View {
-        MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand)
+        MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand, displayMode: $viewModel.selectedDisplayMode)
             .edgesIgnoringSafeArea(.all)
             .id(viewModel.selectedBrand)
     }
@@ -24,14 +62,17 @@ struct ContentView: View {
                 .onSubmit {
                     viewModel.selectedBrand = [viewModel.searchText]
                 }
+                .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
         }
         .padding()
         .background(Color.white)
         .cornerRadius(8)
         .padding(.horizontal)
-        .onTapGesture {
-            isFocused = true
-        }
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                activateSearchFlowIfNeeded()
+            }
+        )
     }
     
     func renderCategoryBtn() -> some View {
@@ -59,73 +100,76 @@ struct ContentView: View {
     }
     
     func renderCategorySheet() -> some View {
-        VStack(alignment: .leading) {
-            Text("Category")
-                .font(.title)
-                .padding()
+        ScrollView{
+            VStack(alignment: .leading) {
+                Text("Category")
+                    .font(.title)
+                    .padding()
 
-            ForEach(["Salon", "Hair", "Make Up", "Skin Care", "Body", "Nails", "Fragrance", "Tools", "Beauty Supplement", "Men's Care"], id: \.self) { category in
-                HStack(alignment: .center) {
-                    ZStack {
-                        Circle()
-                            .strokeBorder(Color.gray, lineWidth: 1.5)
-                            .background(Circle().fill(Color.white))
-                            .frame(width: 20, height: 20)
-
-                        if viewModel.selectedCategory == category {
+                ForEach(["Salon", "Hair", "Make Up", "Skin Care", "Body", "Nails", "Fragrance", "Tools", "Beauty Supplement", "Men's Care"], id: \.self) { category in
+                    HStack(alignment: .center) {
+                        ZStack {
                             Circle()
-                                .fill(Color.blue)
-                                .frame(width: 10, height: 10)
+                                .strokeBorder(Color.gray, lineWidth: 1.5)
+                                .background(Circle().fill(Color.white))
+                                .frame(width: 20, height: 20)
+
+                            if viewModel.selectedCategory == category {
+                                Circle()
+                                    .fill(Color.blue)
+                                    .frame(width: 10, height: 10)
+                            }
                         }
+                        .onTapGesture {
+                            if viewModel.selectedCategory == category {
+                                viewModel.selectedCategory = ""
+                            } else {
+                                viewModel.selectedCategory = category
+                            }
+                        }
+
+                        Text(category)
+                            .padding(.leading, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .onTapGesture {
-                        if viewModel.selectedCategory == category {
-                            viewModel.selectedCategory = ""
-                        } else {
-                            viewModel.selectedCategory = category
-                        }
+                    .padding(.horizontal)
+                    .padding(.vertical, 2)
+                }
+
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        viewModel.selectedCategory = ""
+                    }) {
+                        Text("Reset")
+                            .foregroundStyle(Color.black)
+                            .frame(width: 120)
+                            .padding()
+                            .background(Color.gray.opacity(0.3))
+                            .cornerRadius(18)
                     }
 
-                    Text(category)
-                        .padding(.leading, 8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Button(action: {
+                        viewModel.applyCategory()
+                    }) {
+                        Text("Apply")
+                            .foregroundStyle(Color.white)
+                            .frame(width: 120)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(18)
+                    }
+                    Spacer()
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 4)
-            }
+                .padding(.top, 16)
 
-            HStack {
-                Spacer()
-                Button(action: {
-                    viewModel.selectedCategory = ""
-                }) {
-                    Text("Reset")
-                        .foregroundStyle(Color.black)
-                        .frame(width: 120)
-                        .padding()
-                        .background(Color.gray.opacity(0.3))
-                        .cornerRadius(18)
-                }
-
-                Button(action: {
-                    viewModel.applyCategory()
-                }) {
-                    Text("Apply")
-                        .foregroundStyle(Color.white)
-                        .frame(width: 120)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(18)
-                }
                 Spacer()
             }
-            .padding(.horizontal)
-            .padding(.top, 16)
-
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
+        }
+        
     
     var body: some View {
             ZStack {
@@ -170,13 +214,16 @@ struct ContentView: View {
                     .padding(.bottom)
                 }
             }
+            .safeAreaInset(edge: .bottom) {
+                segmentedControlInset()
+            }
             .sheet(isPresented: $viewModel.showFilter) {
                 renderCategorySheet()
-                    .presentationDetents([.large])
+                    .presentationDetents([.fraction(0.65), .fraction(0.99)])
                     .presentationDragIndicator(.visible)
             }
             .onTapGesture {
-                isFocused = false
+                dismissKeyboardIfFocused()
             }
         }
 }
