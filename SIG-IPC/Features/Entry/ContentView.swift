@@ -83,13 +83,6 @@ struct ContentView: View {
                                     .frame(width: 10, height: 10)
                             }
                         }
-                        .onTapGesture {
-                            if viewModel.selectedCategory == category {
-                                viewModel.selectedCategory = ""
-                            } else {
-                                viewModel.selectedCategory = category
-                            }
-                        }
 
                         Text(category)
                             .padding(.leading, 8)
@@ -97,6 +90,10 @@ struct ContentView: View {
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 2)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.selectedCategory = category
+                    }
                 }
 
                 HStack {
