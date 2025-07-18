@@ -95,7 +95,7 @@ struct ContentView: View {
                         viewModel.selectedCategory = category
                     }
                 }
-
+                
                 HStack {
                     Spacer()
                     Button(action: {

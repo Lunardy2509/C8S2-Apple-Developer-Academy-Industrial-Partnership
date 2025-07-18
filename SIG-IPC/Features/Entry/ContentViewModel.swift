@@ -12,7 +12,7 @@ class ContentViewModel: ObservableObject {
     @Published var searchSuggestions: [String] = []
 
     // MARK: Private variable
-    private var selectedBrands: [Brand] = []
+    private var selectedBrands: [Entity] = []
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -21,7 +21,7 @@ class ContentViewModel: ObservableObject {
             .removeDuplicates() // don't search if the text hasn't changed
             .map { [weak self] text -> [String] in
                 guard !text.isEmpty else { return [] }
-                return BrandData.brands
+                return EntityData.entities
                     .filter { $0.name.localizedCaseInsensitiveContains(text) }
                     .map { $0.name } // return only names
             }
@@ -36,7 +36,7 @@ class ContentViewModel: ObservableObject {
     }
 
     func applyCategory(){
-        self.selectedBrands = BrandData.brands.filter{ $0.category.contains(selectedCategory) }
+        self.selectedBrands = EntityData.entities.filter{ $0.category.contains(selectedCategory) }
         self.selectedBrand = []
         for brand in selectedBrands{
             selectedBrand.append(brand.name)

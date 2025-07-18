@@ -39,7 +39,7 @@ final class GeoJSONDecoderManager {
                            hasZoomed = true
                        }
                         
-                        if ["tunnel", "booth", "stage"].contains(category){
+                        if ["booth", "stage"].contains(category){
                             mapView.addAnnotation(geometry)
                         }
                     }
@@ -62,22 +62,20 @@ final class GeoJSONDecoderManager {
                         return (name, objectType)
                     }
                     
-                    if objectType == "booth" || objectType == "event" {
-                        let category = json["category"] as? [String] ?? []
-                        let activity = json["activity"] as? [String] ?? []
-                        let hall = json["hall"] as? String ?? ""
-                        
-                        let brand = Brand(
-                            name: name,
-                            hall: hall,
-                            objectType: objectType,
-                            category: category,
-                            activity: activity
-                        )
-                        
-                        print("Adding Booth to Data: \(brand.name)")
-                        BrandData.brands.append(brand)
-                    }
+                    let category = json["category"] as? [String] ?? []
+                    let activity = json["activity"] as? [String] ?? []
+                    let hall = json["hall"] as? String ?? ""
+                    
+                    let entity: Entity = Entity(
+                        name: name,
+                        hall: hall,
+                        objectType: objectType,
+                        category: category,
+                        activity: activity
+                    )
+                    
+                    print("Adding Booth to Data: \(entity.name)")
+                    EntityData.entities.append(entity)
                     
                     return (name, objectType)
                 }

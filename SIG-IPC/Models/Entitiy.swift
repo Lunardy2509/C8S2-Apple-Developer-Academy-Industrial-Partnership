@@ -1,4 +1,4 @@
-struct Brand{
+struct Entity{
     var name: String
     var hall: String
     var objectType: String
@@ -6,6 +6,6 @@ struct Brand{
     var activity: [String]
 }
 
-final class BrandData {
-    static var brands: [Brand] = []
+final class EntityData {
+    static var entities: [Entity] = []
 }

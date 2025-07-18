@@ -76,11 +76,11 @@ struct MapView: UIViewRepresentable {
                         return renderer
                     }
                     
-                    if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "wall" }) {
+                    if EntityData.entities.contains(where: { $0.name.lowercased() == title && $0.objectType == "wall" }) {
                         renderer.fillColor = UIColor.black.withAlphaComponent(0.6)
-                    } else if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "tunnel" }) {
+                    } else if EntityData.entities.contains(where: { $0.name.lowercased() == title && $0.objectType == "tunnel" }) {
                         renderer.fillColor = UIColor.gray.withAlphaComponent(0.5)
-                    } else if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "stage" }) {
+                    } else if EntityData.entities.contains(where: { $0.name.lowercased() == title && $0.objectType == "stage" }) {
                         renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
                     } else {
                         // Booth
