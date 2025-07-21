@@ -10,7 +10,6 @@ import MapKit
 
 struct MapMenuView: View {
     @Environment(\.managedObjectContext) private var context
-    
     @StateObject private var locationManager = LocationManager()
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: MapMenuViewModel = MapMenuViewModel()
@@ -65,7 +64,6 @@ struct MapMenuView: View {
                 .font(.system(size: 15))
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
-                .padding(2)
                 .focused($isFocused)
                 .onSubmit {
                     if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == viewModel.searchText.lowercased() }) {
@@ -75,10 +73,10 @@ struct MapMenuView: View {
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
         }
-        .padding()
+        .padding(.vertical, 10)
+        .padding(.horizontal, 15)
         .background(Color.white)
         .cornerRadius(8)
-        .padding(.horizontal)
         .simultaneousGesture(
             TapGesture().onEnded {
                 activateSearchFlowIfNeeded()
@@ -87,7 +85,10 @@ struct MapMenuView: View {
     }
     private func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
-            .padding()
+            .scaledToFit()
+            .frame(height: 15)
+            .padding(.vertical, 15)
+            .padding(.horizontal, 10)
             .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
             .cornerRadius(8)
             .onTapGesture {
@@ -99,7 +100,11 @@ struct MapMenuView: View {
             viewModel.shouldRecenter = true
         }, label:{
             Image(systemName: "location.fill")
-                .padding(8)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 15, height: 15)
+                .padding(.vertical, 15)
+                .padding(.horizontal, 10)
                 .font(.system(size: 30))
                 .foregroundStyle(Color.white)
                 .background(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
@@ -177,6 +182,7 @@ struct MapMenuView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+    
     private func renderSearchSuggestions() -> some View {
         List(viewModel.searchSuggestions, id: \.self) { suggestion in
             HStack {
@@ -257,15 +263,13 @@ struct MapMenuView: View {
                     .padding(.horizontal)
                 }
                 .padding(.top)
-                
-                Spacer()
-                
                 HStack {
                     Spacer()
                     renderRecenterBtn()
                 }
                 .padding(.horizontal)
                 .padding(.bottom)
+                Spacer()
             }
         }
         .safeAreaInset(edge: .bottom) {
