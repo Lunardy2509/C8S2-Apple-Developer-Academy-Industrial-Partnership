@@ -43,6 +43,7 @@ struct MapMenuView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.showSegmentedControl)
     }
+    
     private func dismissKeyboardIfFocused() {
         if isFocused {
             isFocused = false
@@ -199,6 +200,7 @@ struct MapMenuView: View {
                 if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
                     viewModel.selectedBrand = [matchedBrand]
                     viewModel.saveSearchResult(brand: matchedBrand, context: context)
+                    viewModel.loadRecentSearchResults(context: context)
                 }
                 isFocused = false
             }
@@ -206,10 +208,10 @@ struct MapMenuView: View {
         .listStyle(.plain)
         .background(Color.white)
         .cornerRadius(8)
-        .frame(maxHeight: 200)
         .padding(.horizontal)
-        .shadow(radius: 5)
+        .shadow(color: .black.opacity(0.2), radius: 5)
     }
+    
     private func renderRecentSearches() -> some View {
         return List(viewModel.recentSearchResults, id: \.self) { result in
             VStack(alignment: .leading) {
@@ -230,29 +232,22 @@ struct MapMenuView: View {
                     isFocused = false
                 }
             }
-            .onAppear {
-                viewModel.loadRecentSearchResults(context: context)
-            }
         }
     }
     
     var body: some View {
         ZStack {
             if(isFocused) {
-                ZStack {
-                    Color.gray.opacity(0.3)
-                    VStack {
-                        renderRecentSearches()
-                        
-                        if !viewModel.searchSuggestions.isEmpty {
-                            renderSearchSuggestions()
-                        }
-                    }
+                if viewModel.searchSuggestions.isEmpty {
+                    renderRecentSearches()
+                        .padding(.top, 40)
+                } else {
+                    renderSearchSuggestions()
                 }
             } else { renderMap() }
             
-            VStack(spacing: 15) {
-                VStack(spacing: 0) {
+            VStack(spacing: 0) {
+                VStack(spacing: 10) {
                     HStack {
                         renderSearchBar()
                             .onChange(of: viewModel.searchText) { newText in
@@ -261,38 +256,45 @@ struct MapMenuView: View {
                                 }
                             }
                         
-                        renderCategoryBtn()
+                        if(!isFocused){ renderCategoryBtn() }
                     }
                     .padding(.horizontal)
-                }
-                .padding(.top)
-                HStack {
+                    .onChange(of: isFocused) { isNowFocused in
+                        if isNowFocused {
+                            viewModel.loadRecentSearchResults(context: context)
+                        }
+                    }
+                    .padding(.top)
+                    HStack {
+                        Spacer()
+                        if(!isFocused) {
+                            renderRecenterBtn()
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
                     Spacer()
-                    renderRecenterBtn()
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
-                Spacer()
             }
-        }
-        .safeAreaInset(edge: .bottom) {
-            segmentedControlInset()
-                .padding(.top, 20)
-            .background(Color.white)
-            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: -2)
-
-        }
-        .sheet(isPresented: $viewModel.showFilter) {
-            renderCategorySheet()
-                .presentationDetents([.fraction(0.65), .fraction(0.99)])
-                .presentationDragIndicator(.visible)
-        }
-        .onTapGesture {
-            dismissKeyboardIfFocused()
+            .safeAreaInset(edge: .bottom) {
+                segmentedControlInset()
+                    .padding(.top, 20)
+                    .background(Color.white)
+                    .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: -2)
+                
+            }
+            .sheet(isPresented: $viewModel.showFilter) {
+                renderCategorySheet()
+                    .presentationDetents([.fraction(0.65), .fraction(0.99)])
+                    .presentationDragIndicator(.visible)
+            }
+            .onTapGesture {
+                dismissKeyboardIfFocused()
+            }
         }
     }
 }
-
+    
 #Preview {
     MapMenuView()
 }
