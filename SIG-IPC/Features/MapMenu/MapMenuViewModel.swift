@@ -3,7 +3,7 @@ import SwiftUICore
 import CoreData
 import Combine
 
-class ContentViewModel: ObservableObject {
+class MapMenuViewModel: ObservableObject {
     
     @Environment(\.managedObjectContext) private var context
     
