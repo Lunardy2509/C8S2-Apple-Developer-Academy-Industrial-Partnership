@@ -3,6 +3,8 @@ import SwiftUI
 
 struct ContentView: View {
     
+    @StateObject var viewModel: ContentViewModel = ContentViewModel()
+    
     private func renderMapCarousel() -> some View {
         VStack(alignment: .leading, spacing: 20){
             
@@ -40,6 +42,7 @@ struct ContentView: View {
                 
                         Button(action: {
                             print("Venue map tapped")
+                            viewModel.toggleMap()
                         }) {
                             Text("View Venue Map")
                                 .font(.headline)
@@ -67,10 +70,33 @@ struct ContentView: View {
                 Image("PlaceholderMainMenu")
                 renderMapCarousel()
             }
+            .fullScreenCover(isPresented: $viewModel.displayMap){
+                NavigationStack {
+                    MapMenuView()
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                    Text("Venue Map")
+                                        .font(.headline)
+                            }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    viewModel.toggleMap()
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.title2)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbarBackground(Color.white, for: .navigationBar)
+                        .toolbarBackground(.visible, for: .navigationBar)
+                }
+            }
         }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: ContentViewModel())
 }
