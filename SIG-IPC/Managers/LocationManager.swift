@@ -20,7 +20,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         requestAuthorization()
-        
+        locationManager.startUpdatingHeading()
+
         locationUpdateTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             self?.locationManager.requestLocation()
         }
@@ -84,6 +85,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func stop() {
         locationManager.stopUpdatingLocation()
+        locationManager.stopUpdatingHeading()
         locationUpdateTimer?.invalidate()
         locationUpdateTimer = nil
         print("Pembaruan lokasi dihentikan")

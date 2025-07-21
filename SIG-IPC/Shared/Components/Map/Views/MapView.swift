@@ -17,36 +17,38 @@ struct MapView: UIViewRepresentable {
         mapView.delegate = context.coordinator
         mapView.showsCompass = false
         mapView.showsScale = false
+        mapView.isRotateEnabled = true
+
+        let zoomRange = MKMapView.CameraZoomRange(
+            maxCenterCoordinateDistance: 200
+        )
+        mapView.setCameraZoomRange(zoomRange, animated: false)
+        
+        if let location = userLocation {
+            let circle = MKCircle(center: location, radius: 100)
+            mapView.addOverlay(circle)
+        }
         
         GeoJSONDecoderManager.shared.loadGeoJSON(on: mapView)
+        
+        mapView.userTrackingMode = .followWithHeading
+        mapView.setUserTrackingMode(.followWithHeading, animated: false)
         return mapView
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
-        if shouldRecenter, let userLocation = self.userLocation {
-            DispatchQueue.main.async {
-                self.region = MKCoordinateRegion(
-                    center: userLocation,
-                    span: MKCoordinateSpan(latitudeDelta: 0.0001, longitudeDelta: 0.0001)
-                )
-            }
-            
-            uiView.setRegion(region, animated: true)
-
-            DispatchQueue.main.async {
-                self.shouldRecenter = false
-            }
-        }
+        uiView.setUserTrackingMode(.followWithHeading, animated: true)
 
         // Force overlay re-render
         for overlay in uiView.overlays {
             if let polygon = overlay as? MKPolygon {
                 uiView.removeOverlay(polygon)
                 uiView.addOverlay(polygon)
+            } else if let circle = overlay as? MKCircle {
+                uiView.removeOverlay(circle)
+                uiView.addOverlay(circle)
             }
         }
-
-        print("🔁 MapView updated - selectedBrand: \(selectedBrand)")
     }
 
     // MARK: - Coordinator
@@ -58,6 +60,14 @@ struct MapView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let circle = overlay as? MKCircle {
+                let circleRenderer = MKCircleRenderer(circle: circle)
+                circleRenderer.fillColor = UIColor.systemBlue.withAlphaComponent(0.1)
+                circleRenderer.strokeColor = UIColor.systemBlue
+                circleRenderer.lineWidth = 1
+                return circleRenderer
+            }
+            
             if let polygon = overlay as? MKPolygon {
                 let renderer = MKPolygonRenderer(polygon: polygon)
 
@@ -100,5 +110,26 @@ struct MapView: UIViewRepresentable {
 
             return MKOverlayRenderer(overlay: overlay)
         }
+        
+        func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+            if mapView.userTrackingMode != .followWithHeading {
+                mapView.setUserTrackingMode(.followWithHeading, animated: true)
+            }
+        }
+
+        
+        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+            mapView.overlays
+                .filter { $0 is MKCircle }
+                .forEach { mapView.removeOverlay($0) }
+
+            let circle = MKCircle(center: userLocation.coordinate, radius: 2)
+            mapView.addOverlay(circle)
+
+            DispatchQueue.main.async {
+                self.parent.userLocation = userLocation.coordinate
+            }
+        }
     }
+
 }

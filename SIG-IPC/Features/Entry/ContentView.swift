@@ -181,6 +181,9 @@ struct ContentView: View {
         .onTapGesture {
             isFocused = false
         }
+        .onAppear{
+            viewModel.shouldRecenter = true
+        }
     }
 }
 
