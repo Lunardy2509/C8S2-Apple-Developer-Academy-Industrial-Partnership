@@ -73,10 +73,11 @@ struct MapMenuView: View {
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 11)
         .padding(.horizontal, 15)
         .background(Color.white)
-        .cornerRadius(8)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         .simultaneousGesture(
             TapGesture().onEnded {
                 activateSearchFlowIfNeeded()
@@ -89,8 +90,10 @@ struct MapMenuView: View {
             .frame(height: 15)
             .padding(.vertical, 15)
             .padding(.horizontal, 10)
-            .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
-            .cornerRadius(8)
+            .foregroundStyle(Color.gray)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
             .onTapGesture {
                 viewModel.showFilter = true
             }
@@ -99,17 +102,17 @@ struct MapMenuView: View {
         Button(action: {
             viewModel.shouldRecenter = true
         }, label:{
-            Image(systemName: "location.fill")
+            Image(systemName: "location")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 15, height: 15)
+                .frame(width: 20, height: 15)
                 .padding(.vertical, 15)
                 .padding(.horizontal, 10)
                 .font(.system(size: 30))
-                .foregroundStyle(Color.white)
-                .background(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .foregroundStyle(Color.gray)
+                .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                .shadow(radius: 3)
+                .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         })
     }
     private func renderCategorySheet() -> some View {
@@ -248,7 +251,7 @@ struct MapMenuView: View {
                 }
             } else { renderMap() }
             
-            VStack(spacing: 0) {
+            VStack(spacing: 15) {
                 VStack(spacing: 0) {
                     HStack {
                         renderSearchBar()
@@ -274,6 +277,10 @@ struct MapMenuView: View {
         }
         .safeAreaInset(edge: .bottom) {
             segmentedControlInset()
+                .padding(.top, 20)
+            .background(Color.white)
+            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: -2)
+
         }
         .sheet(isPresented: $viewModel.showFilter) {
             renderCategorySheet()
