@@ -18,12 +18,12 @@ class ContentViewModel: ObservableObject {
     init() {
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates() // don't search if the text hasn't changed
+            .removeDuplicates()
             .map { [weak self] text -> [String] in
                 guard !text.isEmpty else { return [] }
                 return EntityData.entities
                     .filter { $0.name.localizedCaseInsensitiveContains(text) }
-                    .map { $0.name } // return only names
+                    .map { $0.name }
             }
             .assign(to: \.searchSuggestions, on: self)
             .store(in: &cancellables)

@@ -17,11 +17,9 @@ struct ContentView: View {
     func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(.gray)
                 .font(.system(size: 15))
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
-                .foregroundStyle(Color.black)
                 .padding(2)
                 .focused($isFocused)
                 .onSubmit {
@@ -29,8 +27,9 @@ struct ContentView: View {
                 }
         }
         .padding(8)
-        .background(Color.white)
+        .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
         .cornerRadius(8)
+        .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
         .padding(.horizontal)
         .onTapGesture {
             isFocused = true
@@ -40,9 +39,9 @@ struct ContentView: View {
     func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
             .padding()
-            .foregroundStyle(Color.black)
-            .background(Color(red: 217 / 255, green: 217 / 255, blue: 217 / 255))
+            .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
             .cornerRadius(8)
+            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
             .onTapGesture {
                 viewModel.showFilter = true
             }
@@ -52,11 +51,11 @@ struct ContentView: View {
         Button(action: {
             viewModel.shouldRecenter = true
         }, label:{
-            Image(systemName: "location.fill")
+            Image(systemName: "location")
                 .padding(8)
                 .font(.system(size: 30))
-                .foregroundStyle(Color.white)
-                .background(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .shadow(radius: 3)
         })
@@ -79,7 +78,7 @@ struct ContentView: View {
 
                             if viewModel.selectedCategory == category {
                                 Circle()
-                                    .fill(Color.blue)
+                                    .fill(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
                                     .frame(width: 10, height: 10)
                             }
                         }
@@ -102,10 +101,10 @@ struct ContentView: View {
                         viewModel.selectedCategory = ""
                     }) {
                         Text("Reset")
-                            .foregroundStyle(Color.black)
+                            .foregroundStyle(Color.white)
                             .frame(width: 120)
                             .padding()
-                            .background(Color.gray.opacity(0.3))
+                            .background(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
                             .cornerRadius(18)
                     }
 
@@ -116,7 +115,7 @@ struct ContentView: View {
                             .foregroundStyle(Color.white)
                             .frame(width: 120)
                             .padding()
-                            .background(Color.blue)
+                            .background(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
                             .cornerRadius(18)
                     }
                     Spacer()
@@ -181,12 +180,10 @@ struct ContentView: View {
         .onTapGesture {
             isFocused = false
         }
-        .onAppear{
-            viewModel.shouldRecenter = true
-        }
     }
 }
 
 #Preview {
     ContentView()
 }
+    

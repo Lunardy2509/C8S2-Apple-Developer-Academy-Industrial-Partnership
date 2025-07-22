@@ -20,7 +20,7 @@ struct MapView: UIViewRepresentable {
         mapView.isRotateEnabled = true
 
         let zoomRange = MKMapView.CameraZoomRange(
-            maxCenterCoordinateDistance: 200
+            maxCenterCoordinateDistance: 500
         )
         mapView.setCameraZoomRange(zoomRange, animated: false)
         
@@ -30,14 +30,16 @@ struct MapView: UIViewRepresentable {
         }
         
         GeoJSONDecoderManager.shared.loadGeoJSON(on: mapView)
-        
-        mapView.userTrackingMode = .followWithHeading
-        mapView.setUserTrackingMode(.followWithHeading, animated: false)
         return mapView
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
-        uiView.setUserTrackingMode(.followWithHeading, animated: true)
+        if self.shouldRecenter {
+            uiView.setUserTrackingMode(.followWithHeading, animated: true)
+            DispatchQueue.main.async{
+                self.shouldRecenter = false
+            }
+        }
 
         // Force overlay re-render
         for overlay in uiView.overlays {
@@ -77,8 +79,7 @@ struct MapView: UIViewRepresentable {
                 }
                 
                 if selectedBrands.contains(title) {
-                    renderer.fillColor = UIColor.green.withAlphaComponent(0.4)
-                    renderer.strokeColor = UIColor.green
+                    renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
                     if ["hall a", "hall b", "hall cendrawasih"].contains(title) {
                         renderer.fillColor = UIColor.white
@@ -95,11 +96,7 @@ struct MapView: UIViewRepresentable {
                         renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
                     } else {
                         // Booth
-                        if selectedBrands.isEmpty {
-                            renderer.fillColor = UIColor.red.withAlphaComponent(0.4)
-                        } else{
-                            renderer.fillColor = UIColor.red.withAlphaComponent(0.2)
-                        }
+                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
                     }
                     renderer.strokeColor = UIColor.clear
                 }
@@ -110,13 +107,6 @@ struct MapView: UIViewRepresentable {
 
             return MKOverlayRenderer(overlay: overlay)
         }
-        
-        func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
-            if mapView.userTrackingMode != .followWithHeading {
-                mapView.setUserTrackingMode(.followWithHeading, animated: true)
-            }
-        }
-
         
         func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
             mapView.overlays
