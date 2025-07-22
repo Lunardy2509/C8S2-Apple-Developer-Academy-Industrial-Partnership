@@ -636,7 +636,7 @@
       {
         "type": "Feature",
         "properties": {
-          "name": "Tresemme",
+          "name": "Tresemme 2",
           "object_type": "booth",
           "hall": "Hall A",
           "activity": "Hairstyling booth",
@@ -932,7 +932,7 @@
       {
         "type": "Feature",
         "properties": {
-          "name": "Tresemme",
+          "name": "Tresemme 1",
           "hall": "Cendrawasih",
           "object_type": "booth",
           "category": ["Hair"],
