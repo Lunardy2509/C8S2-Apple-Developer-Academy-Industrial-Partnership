@@ -35,7 +35,7 @@ struct SegmentedControlView: View {
                         .font(.callout)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                        .foregroundColor(displayMode == mode ? .black : .primary)
+                        .foregroundStyle(displayMode == mode ? .black : .primary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
                         .contentShape(Rectangle())

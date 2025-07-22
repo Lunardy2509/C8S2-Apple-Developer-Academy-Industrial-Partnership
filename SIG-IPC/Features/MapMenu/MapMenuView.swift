@@ -1,12 +1,5 @@
-//
-//  MapView.swift
-//  SIG-IPC
-//
-//  Created by Adeline Charlotte Augustinne on 21/07/25.
-//
-
-import SwiftUI
 import MapKit
+import SwiftUI
 
 struct MapMenuView: View {
     @Environment(\.managedObjectContext) private var context
@@ -33,6 +26,7 @@ struct MapMenuView: View {
             }
         }
     }
+    
     private func segmentedControlInset() -> some View {
         Group {
             if viewModel.showSegmentedControl {
@@ -59,10 +53,11 @@ struct MapMenuView: View {
             .id(viewModel.selectedBrand)
     }
     
+    
     private func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundStyle(Color.gray)
                 .font(.system(size: 15))
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
@@ -86,6 +81,7 @@ struct MapMenuView: View {
             }
         )
     }
+    
     private func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
             .scaledToFit()
@@ -100,6 +96,7 @@ struct MapMenuView: View {
                 viewModel.showFilter = true
             }
     }
+    
     private func renderRecenterBtn() -> some View {
         Button(action: {
             viewModel.shouldRecenter = true
@@ -117,6 +114,7 @@ struct MapMenuView: View {
                 .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         })
     }
+    
     private func renderCategorySheet() -> some View {
         ScrollView{
             VStack(alignment: .leading) {
@@ -197,7 +195,7 @@ struct MapMenuView: View {
                             .font(.headline)
                         Text("\(suggestion.hall)")
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundStyle(Color.gray)
                     }
                     Spacer()
                 }
@@ -228,12 +226,15 @@ struct MapMenuView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(result.name ?? "")
                                 .font(.headline)
+                                .foregroundStyle(Color.black)
+                            
                             Text(result.hall ?? "")
                                 .font(.subheadline)
-                                .foregroundColor(.gray)
+                                .foregroundStyle(.gray)
+                            
                             Text(result.timestamp?.formatted(date: .abbreviated, time: .shortened) ?? "")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.gray)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
@@ -259,11 +260,13 @@ struct MapMenuView: View {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(BrandData.brands, id: \.self) { brand in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(brand.name ?? "")
+                        Text(brand.name)
                             .font(.headline)
+                            .foregroundStyle(Color.black)
+                        
                         Text(brand.hall ?? "")
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundStyle(Color.gray)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
@@ -321,8 +324,8 @@ struct MapMenuView: View {
                 VStack(spacing: 10) {
                     HStack {
                         renderSearchBar()
-                            .onChange(of: viewModel.searchText) { newText in
-                                if newText.isEmpty {
+                            .onChange(of: viewModel.searchText) {
+                                if viewModel.searchText.isEmpty {
                                     viewModel.loadRecentSearchResults(context: context)
                                 }
                             }
@@ -330,12 +333,13 @@ struct MapMenuView: View {
                         if(!isFocused){ renderCategoryBtn() }
                     }
                     .padding(.horizontal)
-                    .onChange(of: isFocused) { isNowFocused in
-                        if isNowFocused {
+                    .onChange(of: isFocused) {
+                        if isFocused {
                             viewModel.loadRecentSearchResults(context: context)
                         }
                     }
                     .padding(.top)
+                    
                     HStack {
                         Spacer()
                         if(!isFocused) {
@@ -344,6 +348,7 @@ struct MapMenuView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom)
+                    
                     Spacer()
                 }
             }

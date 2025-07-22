@@ -77,8 +77,8 @@ final class GeoJSONDecoderManager {
                         
                         let brand = Brand(
                             name: name,
-                            hall: hall,
                             objectType: objectType,
+                            hall: hall,
                             category: category,
                             activity: activity
                         )

@@ -1,7 +1,7 @@
 struct Brand: Hashable {
     var name: String
-    var hall: String?
     var objectType: String
+    var hall: String?
     var category: [String]?
     var activity: String?
 }
