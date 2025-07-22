@@ -31,7 +31,7 @@ class MapMenuViewModel: ObservableObject {
             .map { text -> [SearchResult] in
                 guard !text.isEmpty else { return [] }
                 return EntityData.entities
-                    .filter { $0.name.localizedCaseInsensitiveContains(text) }
+                    .filter { $0.name.localizedCaseInsensitiveContains(text) && $0.objectType == "booth"}
                     .map { SearchResult(name: $0.name, hall: $0.hall ?? "") }
             }
             .assign(to: \.searchSuggestions, on: self)

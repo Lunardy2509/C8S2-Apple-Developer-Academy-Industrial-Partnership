@@ -2,11 +2,10 @@ import MapKit
 import SwiftUI
 
 struct ContentView: View {
-    
-    @StateObject var viewModel: ContentViewModel = ContentViewModel()
-    
-    @FocusState private var isFocused: Bool
     @Environment(\.colorScheme) var colorScheme
+    @FocusState private var isFocused: Bool
+
+    @StateObject var viewModel: ContentViewModel = ContentViewModel()
     
     private func renderMapCarousel() -> some View {
         VStack(alignment: .leading, spacing: 20){
