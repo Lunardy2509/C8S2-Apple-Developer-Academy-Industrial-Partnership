@@ -17,20 +17,20 @@ class MapMenuViewModel: ObservableObject {
     @Published var shouldActivateSearchFlow: Bool = false
 
     @Published var searchText: String = ""
-    @Published var selectedBrand: [Brand] = []
+    @Published var selectedBrand: [Entity] = []
     @Published var recentSearchResults: [CachedSearchResult] = []
 
     // MARK: Private variable
-    private var selectedBrands: [Brand] = []
+    private var selectedBrands: [Entity] = []
     private var cancellables = Set<AnyCancellable>()
 
     init() {
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates() // don't search if the text hasn't changed
+            .removeDuplicates()
             .map { text -> [SearchResult] in
                 guard !text.isEmpty else { return [] }
-                return BrandData.brands
+                return EntityData.entities
                     .filter { $0.name.localizedCaseInsensitiveContains(text) }
                     .map { SearchResult(name: $0.name, hall: $0.hall ?? "") }
             }
@@ -39,7 +39,7 @@ class MapMenuViewModel: ObservableObject {
     }
 
     func applyCategory(){
-        self.selectedBrands = BrandData.brands.filter {
+        self.selectedBrands = EntityData.entities.filter {
             $0.category?.contains(selectedCategory) == true
         }
         self.selectedBrand = []
@@ -49,7 +49,7 @@ class MapMenuViewModel: ObservableObject {
         self.showFilter = false
     }
     
-    func saveSearchResult(brand: Brand, context: NSManagedObjectContext) {
+    func saveSearchResult(brand: Entity, context: NSManagedObjectContext) {
         let entity = CachedSearchResult(context: context)
         entity.name = brand.name
         entity.hall = brand.hall ?? ""
@@ -70,7 +70,7 @@ class MapMenuViewModel: ObservableObject {
         do {
             let allResults = try context.fetch(request)
             
-            // deduplicate by name
+            // Deduplicate by name
             var seenNames = Set<String>()
             var uniqueResults: [CachedSearchResult] = []
             
@@ -92,5 +92,4 @@ class MapMenuViewModel: ObservableObject {
     func loadRecentSearchResults(context: NSManagedObjectContext) {
         self.recentSearchResults = fetchRecentSearchResults(context: context)
     }
-
 }

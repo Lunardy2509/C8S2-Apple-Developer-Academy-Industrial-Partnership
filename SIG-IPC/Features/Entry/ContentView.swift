@@ -5,6 +5,9 @@ struct ContentView: View {
     
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
     
+    @FocusState private var isFocused: Bool
+    @Environment(\.colorScheme) var colorScheme
+    
     private func renderMapCarousel() -> some View {
         VStack(alignment: .leading, spacing: 20){
             Text("My Event")
@@ -41,7 +44,7 @@ struct ContentView: View {
         
                 Button(action: {
                     print("Venue map tapped")
-                    viewModel.toggleMap()
+                    viewModel.displayMap.toggle()
                 }) {
                     Text("View Venue Map")
                         .font(.headline)
@@ -80,7 +83,7 @@ struct ContentView: View {
                             }
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button(action: {
-                                    viewModel.toggleMap()
+                                    viewModel.displayMap.toggle()
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                         .font(.title2)

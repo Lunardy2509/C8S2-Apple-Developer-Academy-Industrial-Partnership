@@ -3,6 +3,8 @@ import SwiftUI
 
 struct MapMenuView: View {
     @Environment(\.managedObjectContext) private var context
+    @Environment(\.colorScheme) private var colorScheme
+    
     @StateObject private var locationManager = LocationManager()
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: MapMenuViewModel = MapMenuViewModel()
@@ -53,7 +55,6 @@ struct MapMenuView: View {
             .id(viewModel.selectedBrand)
     }
     
-    
     private func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
@@ -63,7 +64,7 @@ struct MapMenuView: View {
             TextField("Cari brand Anda", text: $viewModel.searchText)
                 .focused($isFocused)
                 .onSubmit {
-                    if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == viewModel.searchText.lowercased() }) {
+                    if let matchedBrand = EntityData.entities.first(where: { $0.name.lowercased() == viewModel.searchText.lowercased() }) {
                         viewModel.selectedBrand = [matchedBrand]
                         viewModel.saveSearchResult(brand: matchedBrand, context: context)
                     }
@@ -72,7 +73,7 @@ struct MapMenuView: View {
         }
         .padding(.vertical, 11)
         .padding(.horizontal, 15)
-        .background(Color.white)
+        .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         .simultaneousGesture(
@@ -88,8 +89,8 @@ struct MapMenuView: View {
             .frame(height: 15)
             .padding(.vertical, 15)
             .padding(.horizontal, 10)
-            .foregroundStyle(Color.gray)
-            .background(Color.white)
+            .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+            .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
             .onTapGesture {
@@ -108,8 +109,8 @@ struct MapMenuView: View {
                 .padding(.vertical, 15)
                 .padding(.horizontal, 10)
                 .font(.system(size: 30))
-                .foregroundStyle(Color.gray)
-                .background(Color.white)
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         })
@@ -132,15 +133,8 @@ struct MapMenuView: View {
                             
                             if viewModel.selectedCategory == category {
                                 Circle()
-                                    .fill(Color.blue)
+                                    .fill(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
                                     .frame(width: 10, height: 10)
-                            }
-                        }
-                        .onTapGesture {
-                            if viewModel.selectedCategory == category {
-                                viewModel.selectedCategory = ""
-                            } else {
-                                viewModel.selectedCategory = category
                             }
                         }
                         
@@ -150,6 +144,10 @@ struct MapMenuView: View {
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 2)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.selectedCategory = category
+                    }
                 }
                 
                 HStack {
@@ -158,10 +156,10 @@ struct MapMenuView: View {
                         viewModel.selectedCategory = ""
                     }) {
                         Text("Reset")
-                            .foregroundStyle(Color.black)
+                            .foregroundStyle(Color.white)
                             .frame(width: 120)
                             .padding()
-                            .background(Color.gray.opacity(0.3))
+                            .background(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
                             .cornerRadius(18)
                     }
                     
@@ -172,7 +170,7 @@ struct MapMenuView: View {
                             .foregroundStyle(Color.white)
                             .frame(width: 120)
                             .padding()
-                            .background(Color.blue)
+                            .background(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
                             .cornerRadius(18)
                     }
                     Spacer()
@@ -204,7 +202,7 @@ struct MapMenuView: View {
                 .cornerRadius(8)
                 .shadow(color: .gray.opacity(0.1), radius: 1, x: 0, y: 1)
                 .onTapGesture {
-                    if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
+                    if let matchedBrand = EntityData.entities.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
                         viewModel.selectedBrand = [matchedBrand]
                         viewModel.saveSearchResult(brand: matchedBrand, context: context)
                         viewModel.loadRecentSearchResults(context: context)
@@ -242,7 +240,7 @@ struct MapMenuView: View {
                         .cornerRadius(8)
                         .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
                         .onTapGesture {
-                            if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == result.name?.lowercased() }) {
+                            if let matchedBrand = EntityData.entities.first(where: { $0.name.lowercased() == result.name?.lowercased() }) {
                                 viewModel.selectedBrand = [matchedBrand]
                                 viewModel.saveSearchResult(brand: matchedBrand, context: context)
                                 isFocused = false
@@ -258,7 +256,7 @@ struct MapMenuView: View {
     private func renderAllBrands() -> some View {
         Group {
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(BrandData.brands, id: \.self) { brand in
+                ForEach(EntityData.entities, id: \.self) { brand in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(brand.name)
                             .font(.headline)

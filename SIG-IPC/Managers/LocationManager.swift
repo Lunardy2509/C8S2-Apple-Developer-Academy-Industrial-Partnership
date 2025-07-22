@@ -20,7 +20,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         requestAuthorization()
-        
+        locationManager.startUpdatingHeading()
+
         locationUpdateTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             self?.locationManager.requestLocation()
         }
@@ -55,7 +56,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             self.userLocation = coordinate
             self.region = MKCoordinateRegion(
                 center: coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                span: MKCoordinateSpan(latitudeDelta: 0.0001, longitudeDelta: 0.0001)
             )
         }
     }
@@ -64,18 +65,16 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard let currentLocation = locations.last else { return }
         let coordinate = currentLocation.coordinate
 
-        // Update lokasi pengguna di UI
+        // Update user location
         DispatchQueue.main.async {
             self.userLocation = coordinate
         }
 
-        // Set region awal (hanya sekali)
+        // Set initial region
         if !hasSetInitialRegion {
             updateRegion(to: coordinate)
             hasSetInitialRegion = true
         }
-
-//        print("Lokasi pengguna diperbarui: \(coordinate.latitude), \(coordinate.longitude)")
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -84,6 +83,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func stop() {
         locationManager.stopUpdatingLocation()
+        locationManager.stopUpdatingHeading()
         locationUpdateTimer?.invalidate()
         locationUpdateTimer = nil
         print("Pembaruan lokasi dihentikan")
