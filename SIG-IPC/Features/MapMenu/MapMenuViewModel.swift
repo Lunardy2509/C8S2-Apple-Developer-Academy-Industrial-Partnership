@@ -1,7 +1,7 @@
+import Combine
+import CoreData
 import Foundation
 import SwiftUICore
-import CoreData
-import Combine
 
 class MapMenuViewModel: ObservableObject {
     
