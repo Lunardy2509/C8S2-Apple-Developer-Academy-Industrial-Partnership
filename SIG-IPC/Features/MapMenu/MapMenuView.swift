@@ -57,7 +57,7 @@ struct MapMenuView: View {
     private func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundStyle(Color.gray)
                 .font(.system(size: 15))
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
@@ -187,56 +187,101 @@ struct MapMenuView: View {
     }
     
     private func renderSearchSuggestions() -> some View {
-        List(viewModel.searchSuggestions, id: \.self) { suggestion in
-            HStack {
-                Text(suggestion.name)
-                    .font(.headline)
-                
-                Text("\(suggestion.hall)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-            .padding(.vertical, 4)
-            .onTapGesture {
-                if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
-                    viewModel.selectedBrand = [matchedBrand]
-                    viewModel.saveSearchResult(brand: matchedBrand, context: context)
-                    viewModel.loadRecentSearchResults(context: context)
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(viewModel.searchSuggestions, id: \.self) { suggestion in
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(suggestion.name)
+                            .font(.headline)
+                        Text("\(suggestion.hall)")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.gray)
+                    }
+                    Spacer()
                 }
-                isFocused = false
+                .padding()
+                .background(Color.white)
+                .cornerRadius(8)
+                .shadow(color: .gray.opacity(0.1), radius: 1, x: 0, y: 1)
+                .onTapGesture {
+                    if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
+                        viewModel.selectedBrand = [matchedBrand]
+                        viewModel.saveSearchResult(brand: matchedBrand, context: context)
+                        viewModel.loadRecentSearchResults(context: context)
+                    }
+                    isFocused = false
+                }
             }
         }
+        .padding(.horizontal)
     }
     
     private func renderRecentSearches() -> some View {
         Group {
             if(viewModel.recentSearchResults.isEmpty) {
-                
                 Text("No recent searches!")
             } else {
-                List(viewModel.recentSearchResults, id: \.self) { result in
-                    VStack(alignment: .leading) {
-                        Text(result.name ?? "")
-                            .font(.headline)
-                        Text(result.hall ?? "")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                        Text(result.timestamp?.formatted(date: .abbreviated, time: .shortened) ?? "")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                    .onTapGesture {
-                        if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == result.name?.lowercased() }) {
-                            viewModel.selectedBrand = [matchedBrand]
-                            viewModel.saveSearchResult(brand: matchedBrand, context: context)
-                            isFocused = false
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(viewModel.recentSearchResults, id: \.self) { result in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(result.name ?? "")
+                                .font(.headline)
+                                .foregroundStyle(Color.black)
+                            
+                            Text(result.hall ?? "")
+                                .font(.subheadline)
+                                .foregroundStyle(.gray)
+                            
+                            Text(result.timestamp?.formatted(date: .abbreviated, time: .shortened) ?? "")
+                                .font(.caption)
+                                .foregroundStyle(.gray)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
+                        .onTapGesture {
+                            if let matchedBrand = BrandData.brands.first(where: { $0.name.lowercased() == result.name?.lowercased() }) {
+                                viewModel.selectedBrand = [matchedBrand]
+                                viewModel.saveSearchResult(brand: matchedBrand, context: context)
+                                isFocused = false
+                            }
                         }
                     }
                 }
-                
+                .padding(.horizontal)
             }
         }
+    }
+    
+    private func renderAllBrands() -> some View {
+        Group {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(BrandData.brands, id: \.self) { brand in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(brand.name)
+                            .font(.headline)
+                            .foregroundStyle(Color.black)
+                        
+                        Text(brand.hall ?? "")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.gray)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
+                    .onTapGesture {
+                        viewModel.selectedBrand = [brand]
+                        viewModel.saveSearchResult(brand: brand, context: context)
+                        isFocused = false
+                    }
+                }
+            }
+        }
+        .padding(.horizontal)
     }
     
     var body: some View {
@@ -248,30 +293,32 @@ struct MapMenuView: View {
                         VStack(alignment: .leading) {
                             Text("Recent Searches")
                                 .font(.title3)
-                                .padding(.horizontal)
                                 .padding(.bottom, 5)
                             renderRecentSearches()
-                                .padding(.top, -10)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .padding(.bottom, 10)
                         VStack(alignment: .leading) {
                             Text("All Brands")
                                 .font(.title3)
-                                .padding(.horizontal)
                                 .padding(.bottom, 5)
-                            renderRecentSearches()
-                                .padding(.top, -10)
+                            renderAllBrands()
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
                     }
                     .padding(.top, 80)
                 } else {
-                    VStack{
-                        Text("Search Results")
-                        renderSearchSuggestions()
+                    ScrollView() {
+                        VStack{
+                            Text("Search Results")
+                            renderSearchSuggestions()
+                        }
+                        .padding(.top, 80)
                     }
-                    .padding(.top, 80)
                 }
-            }
-            else { renderMap() }
+            } else { renderMap() }
             
             VStack(spacing: 0) {
                 VStack(spacing: 10) {
