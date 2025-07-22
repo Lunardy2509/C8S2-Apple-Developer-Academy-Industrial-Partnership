@@ -61,33 +61,44 @@ final class GeoJSONDecoderManager {
     
     private func extractFeatureID(from feature: MKGeoJSONFeature) -> (String?, String) {
         guard let propertiesData = feature.properties else { return (nil, "") }
-        
         do {
+
             if let json = try JSONSerialization.jsonObject(with: propertiesData) as? [String: Any] {
                 if let name = json["name"] as? String {
                     let objectType = json["object_type"] as? String ?? ""
                     if self.hasSeededData {
                         return (name, objectType)
                     }
-                    
-                    if objectType == "booth" || objectType == "event" {
-                        let category = json["category"] as? [String]
-                        let activity = json["activity"] as? String
-                        let hall = json["hall"] as? String
-                        
-                        let brand = Brand(
-                            name: name,
-                            hall: hall,
-                            objectType: objectType,
-                            category: category,
-                            activity: activity
-                        )
-                        
-                        print("Add Data \(brand.name) with activity \(brand.activity ?? "")")
-                        BrandData.brands.append(brand)
+                }
+                if let geometry = feature.geometry.first as? MKPolygon {
+                    let points = geometry.points()
+                    var coords: [CLLocationCoordinate2D] = []
+                    for i in 0..<geometry.pointCount {
+                        let coord = points[i].coordinate
+                        coords.append(coord)
                     }
-                    
-                    return (name, objectType)
+
+                    let brandProperties = BrandProperties(
+                        name: json["name"] as? String ?? "",
+                        hall: json["hall"] as? String,
+                        objectType: json["object_type"] as? String ?? "",
+                        category: json["category"] as? [String],
+                        activity: json["activity"] as? String
+                    )
+
+                    let brandGeometry = BrandGeometry(
+                        coordinates: coords,
+                        type: "Polygon"
+                    )
+
+                    let brandFeature = BrandFeature(
+                        properties: brandProperties,
+                        geometry: brandGeometry
+                    )
+
+                    BrandData.brandFeature.append(brandFeature)
+                    print("✅ Parsed BrandFeature \(brandFeature.properties.name)")
+                    return (brandFeature.properties.name,brandFeature.properties.objectType)
                 }
             }
         } catch {

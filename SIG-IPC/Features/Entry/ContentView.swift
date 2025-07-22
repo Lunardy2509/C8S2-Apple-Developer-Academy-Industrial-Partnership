@@ -5,6 +5,10 @@ struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @FocusState private var isFocused: Bool
     @StateObject var viewModel: ContentViewModel = ContentViewModel()
+    @State var popupCoordinate: CLLocationCoordinate2D?
+    @State private var popupScreenPosition: CGPoint = .zero
+    @State private var mapViewRef: MKMapView?
+    @State private var popupData: CustomPopupData?
     
     private func activateSearchFlowIfNeeded() {
         guard !viewModel.shouldActivateSearchFlow else { return }
@@ -45,9 +49,34 @@ struct ContentView: View {
     }
     
     func renderMap() -> some View {
-        MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand, displayMode: $viewModel.selectedDisplayMode)
+        ZStack {
+            MapView(
+                userLocation: $locationManager.userLocation,
+                region: $locationManager.region,
+                shouldRecenter: $viewModel.shouldRecenter,
+                selectedBrand: $viewModel.selectedBrand,
+                displayMode: $viewModel.selectedDisplayMode,
+                popupCoordinate: $popupCoordinate,
+                popupScreenPosition: $popupScreenPosition,
+                popupData: $popupData,
+                mapViewRef: $mapViewRef
+            )
             .edgesIgnoringSafeArea(.all)
             .id(viewModel.selectedBrand)
+            if let data = popupData {
+                GeometryReader { geo in
+                    let x = popupScreenPosition.x
+                    let y = popupScreenPosition.y
+                    CustomPopupView(data: data)
+                        .position(x: x, y: y-125)
+                }
+            }
+        }
+    }
+    
+    private func convertToCGPoint(from coordinate: CLLocationCoordinate2D) -> CGPoint {
+        guard let mapView = mapViewRef else { return .zero }
+        return mapView.convert(coordinate, toPointTo: mapView)
     }
     
     func renderSearchBar() -> some View {
