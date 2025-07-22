@@ -1,12 +1,5 @@
-//
-//  MapView.swift
-//  SIG-IPC
-//
-//  Created by Adeline Charlotte Augustinne on 21/07/25.
-//
-
-import SwiftUI
 import MapKit
+import SwiftUI
 
 struct MapMenuView: View {
     @Environment(\.managedObjectContext) private var context
@@ -33,6 +26,7 @@ struct MapMenuView: View {
             }
         }
     }
+    
     private func segmentedControlInset() -> some View {
         Group {
             if viewModel.showSegmentedControl {
@@ -58,6 +52,7 @@ struct MapMenuView: View {
             .edgesIgnoringSafeArea(.all)
             .id(viewModel.selectedBrand)
     }
+    
     private func renderSearchBar() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
@@ -85,6 +80,7 @@ struct MapMenuView: View {
             }
         )
     }
+    
     private func renderCategoryBtn() -> some View {
         Image(systemName: "line.3.horizontal.decrease")
             .scaledToFit()
@@ -99,6 +95,7 @@ struct MapMenuView: View {
                 viewModel.showFilter = true
             }
     }
+    
     private func renderRecenterBtn() -> some View {
         Button(action: {
             viewModel.shouldRecenter = true
@@ -116,6 +113,7 @@ struct MapMenuView: View {
                 .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         })
     }
+    
     private func renderCategorySheet() -> some View {
         ScrollView{
             VStack(alignment: .leading) {
@@ -192,6 +190,7 @@ struct MapMenuView: View {
             HStack {
                 Text(suggestion.name)
                     .font(.headline)
+                
                 Text("\(suggestion.hall)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -243,15 +242,17 @@ struct MapMenuView: View {
                         .padding(.top, 40)
                 } else {
                     renderSearchSuggestions()
+                        .padding(.top, 80)
                 }
-            } else { renderMap() }
+            }
+            else { renderMap() }
             
             VStack(spacing: 0) {
                 VStack(spacing: 10) {
                     HStack {
                         renderSearchBar()
-                            .onChange(of: viewModel.searchText) { newText in
-                                if newText.isEmpty {
+                            .onChange(of: viewModel.searchText) {
+                                if viewModel.searchText.isEmpty {
                                     viewModel.loadRecentSearchResults(context: context)
                                 }
                             }
@@ -259,12 +260,13 @@ struct MapMenuView: View {
                         if(!isFocused){ renderCategoryBtn() }
                     }
                     .padding(.horizontal)
-                    .onChange(of: isFocused) { isNowFocused in
-                        if isNowFocused {
+                    .onChange(of: isFocused) {
+                        if isFocused {
                             viewModel.loadRecentSearchResults(context: context)
                         }
                     }
                     .padding(.top)
+                    
                     HStack {
                         Spacer()
                         if(!isFocused) {
@@ -273,6 +275,7 @@ struct MapMenuView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom)
+                    
                     Spacer()
                 }
             }
