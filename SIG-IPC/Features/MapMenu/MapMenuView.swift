@@ -112,6 +112,7 @@ struct MapMenuView: View {
                     .onTapGesture {
                         viewModel.searchText = ""
                         viewModel.selectedBrand.removeAll()
+                        isFocused = false
                     }
             }
         }
@@ -120,26 +121,47 @@ struct MapMenuView: View {
         .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
-        .simultaneousGesture(
-            TapGesture().onEnded {
-                activateSearchFlowIfNeeded()
-            }
-        )
+        .onTapGesture{
+            activateSearchFlowIfNeeded()
+        }
     }
     
+    @ViewBuilder
     private func renderCategoryBtn() -> some View {
-        Image(systemName: "line.3.horizontal.decrease")
-            .scaledToFit()
-            .frame(height: 15)
-            .padding(.vertical, 15)
-            .padding(.horizontal, 10)
-            .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
-            .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
-            .onTapGesture {
-                viewModel.showFilter = true
-            }
+        if viewModel.selectedCategory == ""{
+            Image(systemName: "line.3.horizontal.decrease")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 15)
+                .padding(.vertical, 15)
+                .padding(.horizontal, 10)
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+                .onTapGesture {
+                    viewModel.showFilter = true
+                }
+        } else{
+            Image("filterIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 15)
+                .padding(.vertical, 15)
+                .padding(.horizontal, 10)
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color(red: 255 / 255, green: 239 / 255, blue: 239 / 255))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(red: 219/255, green: 40/255, blue: 78/255), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+                .onTapGesture {
+                    viewModel.showFilter = true
+                }
+            
+        }
     }
     
     private func renderRecenterBtn() -> some View {
