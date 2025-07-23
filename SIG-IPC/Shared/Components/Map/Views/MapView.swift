@@ -136,7 +136,7 @@ struct MapView: UIViewRepresentable {
                 }
                 
                 if selectedBrands.contains(title) {
-                    renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
+                    renderer.fillColor = UIColor(Color(red: 218 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
                     if ["hall a", "hall b", "hall cendrawasih"].contains(title) {
                         renderer.fillColor = UIColor.white
@@ -153,7 +153,7 @@ struct MapView: UIViewRepresentable {
                         renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
                     } else {
                         // Booth
-                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
+                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 220 / 255, green: 62 / 255, blue: 136 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
                     }
                     renderer.strokeColor = UIColor.clear
                 }
@@ -244,7 +244,7 @@ struct MapView: UIViewRepresentable {
                            }
                        },
                         onClick: {
-                            //TO DO: Redirect to brand profile page
+                            // TODO: Redirect to brand profile page
                             return
                        })
                     
@@ -356,9 +356,7 @@ struct MapView: UIViewRepresentable {
 
             addSubview(label)
             frame = label.bounds
-            
-//            print("setup ", title)
-            
+                        
             let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
             self.addGestureRecognizer(longPress)
             self.isUserInteractionEnabled = true
@@ -380,8 +378,5 @@ struct MapView: UIViewRepresentable {
         func setLabelHidden(_ hidden: Bool) {
             label.isHidden = hidden
         }
-        
     }
-
-
 }

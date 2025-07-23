@@ -86,10 +86,6 @@ final class GeoJSONDecoderManager {
                         activity: json["activity"] as? String
                     )
 
-//                    let entityGeometry = EntityGeometry(
-//                        coordinates: coords,
-//                        type: "Polygon"
-//                    )
                     let wrappedCoords = coords.map { CoordinateWrapper($0) }
 
                     let entityGeometry = EntityGeometry(

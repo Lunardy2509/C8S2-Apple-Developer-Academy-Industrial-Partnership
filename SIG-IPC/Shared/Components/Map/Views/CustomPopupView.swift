@@ -1,17 +1,12 @@
-//
-//  CustomPopupView.swift
-//  SIG-IPC
-//
-//  Created by jonathan calvin sutrisna on 18/07/25.
-//
-
 import SwiftUI
+
 struct CustomPopupData {
     var title: String
     var subtitle: String
     var onClose: () -> Void
     var onClick: () -> Void
 }
+
 struct CustomPopupView: View {
     let data: CustomPopupData
 
