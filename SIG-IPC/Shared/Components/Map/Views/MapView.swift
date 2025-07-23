@@ -5,7 +5,7 @@ struct MapView: UIViewRepresentable {
     @Binding var userLocation: CLLocationCoordinate2D?
     @Binding var region: MKCoordinateRegion
     @Binding var shouldRecenter: Bool
-    @Binding var selectedBrand: [String]
+    @Binding var selectedBrand: [Entity]
     @Binding var displayMode: DisplayModeEnum
     @Binding var popupCoordinate: CLLocationCoordinate2D?
     @Binding var popupScreenPosition: CGPoint
@@ -22,7 +22,18 @@ struct MapView: UIViewRepresentable {
         mapView.delegate = context.coordinator
         mapView.showsCompass = false
         mapView.showsScale = false
+        mapView.isRotateEnabled = true
+
+        let zoomRange = MKMapView.CameraZoomRange(
+            maxCenterCoordinateDistance: 500
+        )
+        mapView.setCameraZoomRange(zoomRange, animated: false)
         
+        if let location = userLocation {
+            let circle = MKCircle(center: location, radius: 100)
+            mapView.addOverlay(circle)
+        }
+                
         DispatchQueue.main.async {
             self.mapViewRef = mapView
         }
@@ -38,7 +49,9 @@ struct MapView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
-        if shouldRecenter, let userLocation = self.userLocation {
+        if self.shouldRecenter, let userLocation = self.userLocation {
+            uiView.setUserTrackingMode(.followWithHeading, animated: true)
+            
             DispatchQueue.main.async {
                 self.region = MKCoordinateRegion(
                     center: userLocation,
@@ -47,7 +60,7 @@ struct MapView: UIViewRepresentable {
             }
             
             uiView.setRegion(region, animated: true)
-            DispatchQueue.main.async {
+            DispatchQueue.main.async{
                 self.shouldRecenter = false
             }
         }
@@ -59,9 +72,15 @@ struct MapView: UIViewRepresentable {
 
         // Force overlay re-render & apply annotations per displayMode
         for overlay in uiView.overlays {
+            if let circle = overlay as? MKCircle {
+                uiView.removeOverlay(circle)
+                uiView.addOverlay(circle)
+                continue
+            }
+            
             guard let polygon = overlay as? MKPolygon,
                   let title = polygon.title?.lowercased(),
-                  let brand = BrandData.brandFeature.first(where: { $0.properties.name.lowercased() == title })
+                  let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
             else { continue }
 
             // Re-render overlay
@@ -85,8 +104,6 @@ struct MapView: UIViewRepresentable {
                 }
             }
         }
-
-        print("🔁 MapView updated - selectedBrand: \(selectedBrand)")
     }
 
     // MARK: - Coordinator
@@ -100,17 +117,24 @@ struct MapView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let circle = overlay as? MKCircle {
+                let circleRenderer = MKCircleRenderer(circle: circle)
+                circleRenderer.fillColor = UIColor.systemBlue.withAlphaComponent(0.1)
+                circleRenderer.strokeColor = UIColor.systemBlue
+                circleRenderer.lineWidth = 1
+                return circleRenderer
+            }
+            
             if let polygon = overlay as? MKPolygon {
                 let renderer = MKPolygonRenderer(polygon: polygon)
 
                 let title = polygon.title?.lowercased() ?? ""
                 let selectedBrands = parent.selectedBrand.map {
-                    $0.lowercased()
+                    $0.properties.name.lowercased()
                 }
                 
                 if selectedBrands.contains(title) {
-                    renderer.fillColor = UIColor.green.withAlphaComponent(0.4)
-                    renderer.strokeColor = UIColor.green
+                    renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
                     if ["hall a", "hall b", "hall cendrawasih"].contains(title) {
                         renderer.fillColor = UIColor.white
@@ -119,19 +143,15 @@ struct MapView: UIViewRepresentable {
                         return renderer
                     }
                     
-                    if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "wall" }) {
+                    if EntityData.entities.contains(where: { $0.properties.name.lowercased() == title && $0.properties.objectType == "wall" }) {
                         renderer.fillColor = UIColor.black.withAlphaComponent(0.6)
-                    } else if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "tunnel" }) {
+                    } else if EntityData.entities.contains(where: { $0.properties.name.lowercased() == title && $0.properties.objectType == "tunnel" }) {
                         renderer.fillColor = UIColor.gray.withAlphaComponent(0.5)
-                    } else if BrandData.brands.contains(where: { $0.name.lowercased() == title && $0.objectType == "stage" }) {
+                    } else if EntityData.entities.contains(where: { $0.properties.name.lowercased() == title && $0.properties.objectType == "stage" }) {
                         renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
                     } else {
                         // Booth
-                        if selectedBrands.isEmpty {
-                            renderer.fillColor = UIColor.red.withAlphaComponent(0.4)
-                        } else{
-                            renderer.fillColor = UIColor.red.withAlphaComponent(0.2)
-                        }
+                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
                     }
                     renderer.strokeColor = UIColor.clear
                 }
@@ -141,6 +161,19 @@ struct MapView: UIViewRepresentable {
             }
 
             return MKOverlayRenderer(overlay: overlay)
+        }
+        
+        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+            mapView.overlays
+                .filter { $0 is MKCircle }
+                .forEach { mapView.removeOverlay($0) }
+
+            let circle = MKCircle(center: userLocation.coordinate, radius: 2)
+            mapView.addOverlay(circle)
+
+            DispatchQueue.main.async {
+                self.parent.userLocation = userLocation.coordinate
+            }
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -164,7 +197,7 @@ struct MapView: UIViewRepresentable {
                 let coordinate = annotation.coordinate
                 let title = annotation.title ?? ""
 
-                if let booth = BrandData.brandFeature.first(where: { $0.properties.name == title }) {
+                if let booth = EntityData.entities.first(where: { $0.properties.name == title }) {
                     let data = CustomPopupData(
                         title: booth.properties.name,
                         subtitle: booth.properties.hall ?? "",
@@ -195,9 +228,9 @@ struct MapView: UIViewRepresentable {
             let touchPoint = gestureRecognizer.location(in: mapView)
             let coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
 
-            let booths = BrandData.brandFeature.filter{ $0.properties.objectType == "booth"}
+            let booths = EntityData.entities.filter{ $0.properties.objectType == "booth"}
             for booth in booths {
-                let coordinates = booth.geometry.coordinates
+                let coordinates = booth.geometry.coordinates.map { $0.coordinate }
                 if contains(coordinate, in: coordinates) {
                     let data = CustomPopupData(
                         title: booth.properties.name,
@@ -212,10 +245,11 @@ struct MapView: UIViewRepresentable {
                             //TO DO: Redirect to brand profile page
                             return
                        })
+                    
                     DispatchQueue.main.async {
                         self.parent.popupData = data
                     }
-                    print("🟢 Long pressed inside polygon: \(data.title)")
+                    
                     let centerCoord = calculateCentroid(of: coordinates)
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     showPopup(at: centerCoord, on: mapView)
@@ -321,7 +355,7 @@ struct MapView: UIViewRepresentable {
             addSubview(label)
             frame = label.bounds
             
-            print("setup ", title)
+//            print("setup ", title)
             
             let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
             self.addGestureRecognizer(longPress)
@@ -346,5 +380,6 @@ struct MapView: UIViewRepresentable {
         }
         
     }
+
 
 }

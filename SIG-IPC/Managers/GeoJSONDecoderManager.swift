@@ -46,7 +46,7 @@ final class GeoJSONDecoderManager {
                            hasZoomed = true
                        }
                         
-                        if ["tunnel", "booth", "stage"].contains(category){
+                        if ["booth", "stage"].contains(category){
                             mapView.addAnnotation(geometry)
                         }
                     }
@@ -78,7 +78,7 @@ final class GeoJSONDecoderManager {
                         coords.append(coord)
                     }
 
-                    let brandProperties = BrandProperties(
+                    let entityProperties = EntityProperties(
                         name: json["name"] as? String ?? "",
                         hall: json["hall"] as? String,
                         objectType: json["object_type"] as? String ?? "",
@@ -86,19 +86,25 @@ final class GeoJSONDecoderManager {
                         activity: json["activity"] as? String
                     )
 
-                    let brandGeometry = BrandGeometry(
-                        coordinates: coords,
+//                    let entityGeometry = EntityGeometry(
+//                        coordinates: coords,
+//                        type: "Polygon"
+//                    )
+                    let wrappedCoords = coords.map { CoordinateWrapper($0) }
+
+                    let entityGeometry = EntityGeometry(
+                        coordinates: wrappedCoords,
                         type: "Polygon"
                     )
 
-                    let brandFeature = BrandFeature(
-                        properties: brandProperties,
-                        geometry: brandGeometry
+                    let entity = Entity(
+                        properties: entityProperties,
+                        geometry: entityGeometry
                     )
 
-                    BrandData.brandFeature.append(brandFeature)
-                    print("✅ Parsed BrandFeature \(brandFeature.properties.name)")
-                    return (brandFeature.properties.name,brandFeature.properties.objectType)
+                    EntityData.entities.append(entity)
+                    print("✅ Parsed Entity \(entity.properties.name)")
+                    return (entity.properties.name, entity.properties.objectType)
                 }
             }
         } catch {

@@ -24,7 +24,7 @@ struct SegmentedControlView: View {
             ForEach(DisplayModeEnum.allCases) { mode in
                 ZStack {
                     if displayMode == mode {
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: 7)
                             .fill(Color.white)
                             .matchedGeometryEffect(id: "background", in: animation)
                             .padding(5)
@@ -35,7 +35,7 @@ struct SegmentedControlView: View {
                         .font(.callout)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                        .foregroundColor(displayMode == mode ? .black : .primary)
+                        .foregroundStyle(displayMode == mode ? .black : .primary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
                         .contentShape(Rectangle())
@@ -49,7 +49,7 @@ struct SegmentedControlView: View {
         }
         .frame(height: 36)
         .background(Color.gray.opacity(0.4))
-        .clipShape(Capsule())
+        .clipShape(RoundedRectangle(cornerRadius: 9))
         .padding(.horizontal)
     }
 }
