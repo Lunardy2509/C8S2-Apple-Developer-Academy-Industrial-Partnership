@@ -2,6 +2,7 @@ import MapKit
 import SwiftUI
 
 struct MapMenuView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var context
     @Environment(\.colorScheme) private var colorScheme
     
@@ -95,9 +96,7 @@ struct MapMenuView: View {
                         viewModel.selectedBrand = [matchedBrand]
                         viewModel.saveSearchResult(brand: matchedBrand, context: context)
                     }
-//                    withAnimation {
-//                        viewModel.showSegmentedControl = true
-//                    }
+                    
                     viewModel.resetState()
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
@@ -409,6 +408,21 @@ struct MapMenuView: View {
                 dismissKeyboardIfFocused()
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Home")
+                    }
+                    .foregroundStyle(Color.blue)
+                }
+            }
+        }
+        .toolbarBackground(Color.white, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 }
     

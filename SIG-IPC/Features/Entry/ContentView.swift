@@ -4,8 +4,6 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var isFocused: Bool
-
-    @StateObject var viewModel: ContentViewModel = ContentViewModel()
     
     private func renderMapCarousel() -> some View {
         VStack(alignment: .leading, spacing: 20){
@@ -31,6 +29,7 @@ struct ContentView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "calendar")
                             .foregroundColor(.secondary)
+                        
                         Text("4-7 Juli 2025")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -41,10 +40,12 @@ struct ContentView: View {
                 .padding(.horizontal, 15)
                 .padding(.bottom, 10)
         
-                Button(action: {
-                    print("Venue map tapped")
-                    viewModel.displayMap.toggle()
-                }) {
+                NavigationLink(destination:
+                    MapMenuView()
+                        .navigationTitle("Venue Map")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .navigationBarBackButtonHidden(true)
+                ){
                     Text("View Venue Map")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -65,34 +66,14 @@ struct ContentView: View {
     }
     
     var body: some View {
-        ZStack{
-            Color.white
-            VStack{
-                Image("PlaceholderMainMenu")
-                renderMapCarousel()
-            }
-            .fullScreenCover(isPresented: $viewModel.displayMap){
-                NavigationStack {
-                    MapMenuView()
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                Text("Venue Map")
-                                    .font(.headline)
-                                    .foregroundStyle(Color.black)
-                            }
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    viewModel.displayMap.toggle()
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.title2)
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                        }
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbarBackground(Color.white, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
+        NavigationStack {
+            ScrollView(.vertical, showsIndicators: false){
+                ZStack{
+                    Color.white
+                    VStack{
+                        Image("PlaceholderMainMenu")
+                        renderMapCarousel()
+                    }
                 }
             }
         }
@@ -100,5 +81,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(viewModel: ContentViewModel())
+    ContentView()
 }
