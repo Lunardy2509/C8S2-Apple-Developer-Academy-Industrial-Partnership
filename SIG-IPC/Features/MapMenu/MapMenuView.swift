@@ -186,11 +186,15 @@ struct MapMenuView: View {
                         viewModel.selectedCategory = ""
                     }) {
                         Text("Reset")
-                            .foregroundStyle(Color.white)
                             .frame(width: 120)
                             .padding()
-                            .background(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
+                            .foregroundStyle(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
+                            .background(Color.white)
                             .cornerRadius(18)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .stroke(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255), lineWidth: 1)
+                            )
                     }
                     
                     Button(action: {
