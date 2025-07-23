@@ -24,6 +24,9 @@ struct MapMenuView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isFocused = true
+                viewModel.popupData = nil
+                viewModel.popupCoordinate = nil
+                viewModel.popupScreenPosition = .zero
                 viewModel.shouldActivateSearchFlow = false
             }
         }
@@ -50,9 +53,33 @@ struct MapMenuView: View {
     }
     
     private func renderMap() -> some View {
-        MapView(userLocation: $locationManager.userLocation, region: $locationManager.region, shouldRecenter: $viewModel.shouldRecenter, selectedBrand: $viewModel.selectedBrand, displayMode: $viewModel.selectedDisplayMode)
+        ZStack {
+            MapView(
+                userLocation: $locationManager.userLocation,
+                region: $locationManager.region,
+                shouldRecenter: $viewModel.shouldRecenter,
+                selectedBrand: $viewModel.selectedBrand,
+                displayMode: $viewModel.selectedDisplayMode,
+                popupCoordinate: $viewModel.popupCoordinate,
+                popupScreenPosition: $viewModel.popupScreenPosition,
+                popupData: $viewModel.popupData,
+                mapViewRef: $viewModel.mapViewRef
+            )
             .edgesIgnoringSafeArea(.all)
             .id(viewModel.selectedBrand)
+            
+            if let data = viewModel.popupData {
+                GeometryReader { geo in
+                    let x = viewModel.popupScreenPosition.x
+                    let y = viewModel.popupScreenPosition.y
+                    VStack {
+                        CustomPopupView(data: data)
+                            .position(x: x, y: y-125)
+                        
+                    }
+                }
+            }
+        }
     }
     
     private func renderSearchBar() -> some View {
@@ -64,10 +91,14 @@ struct MapMenuView: View {
             TextField("Cari brand Anda", text: $viewModel.searchText)
                 .focused($isFocused)
                 .onSubmit {
-                    if let matchedBrand = EntityData.entities.first(where: { $0.name.lowercased() == viewModel.searchText.lowercased() && $0.objectType == "booth"}) {
+                    if let matchedBrand = EntityData.entities.first(where: { $0.properties.name.lowercased() == viewModel.searchText.lowercased() && $0.properties.objectType == "booth"}) {
                         viewModel.selectedBrand = [matchedBrand]
                         viewModel.saveSearchResult(brand: matchedBrand, context: context)
                     }
+//                    withAnimation {
+//                        viewModel.showSegmentedControl = true
+//                    }
+                    viewModel.resetState()
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
         }
@@ -187,33 +218,40 @@ struct MapMenuView: View {
     private func renderSearchSuggestions() -> some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(viewModel.searchSuggestions, id: \.self) { suggestion in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(suggestion.name)
-                            .font(.headline)
-                        
-                        Text("\(suggestion.hall)")
-                            .font(.subheadline)
-                            .foregroundStyle(Color.gray)
-                    }
-                    Spacer()
-                }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(8)
-                .shadow(color: .gray.opacity(0.1), radius: 1, x: 0, y: 1)
-                .onTapGesture {
-                    if let matchedBrand = EntityData.entities.first(where: { $0.name.lowercased() == suggestion.name.lowercased() }) {
-                        viewModel.selectedBrand = [matchedBrand]
-                        viewModel.saveSearchResult(brand: matchedBrand, context: context)
-                        viewModel.loadRecentSearchResults(context: context)
-                    }
-                    isFocused = false
-                }
+                SearchSuggestionRow(suggestion: suggestion)
             }
         }
         .padding(.horizontal)
     }
+
+    @ViewBuilder
+    private func SearchSuggestionRow(suggestion: SearchResult) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(suggestion.name)
+                    .font(.headline)
+                Text("\(suggestion.hall)")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.gray)
+            }
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(8)
+        .shadow(color: .gray.opacity(0.1), radius: 1, x: 0, y: 1)
+        .onTapGesture {
+            if let matchedBrand = EntityData.entities.first(where: { $0.properties.name.lowercased() == suggestion.name.lowercased() }) {
+                viewModel.selectedBrand = [matchedBrand]
+                viewModel.saveSearchResult(brand: matchedBrand, context: context)
+                viewModel.loadRecentSearchResults(context: context)
+            }
+            isFocused = false
+            
+            viewModel.resetState()
+        }
+    }
+
     
     private func renderRecentSearches() -> some View {
         Group {
@@ -241,10 +279,12 @@ struct MapMenuView: View {
                         .cornerRadius(8)
                         .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
                         .onTapGesture {
-                            if let matchedBrand = EntityData.entities.first(where: { $0.name.lowercased() == result.name?.lowercased() }) {
+                            if let matchedBrand = EntityData.entities.first(where: { $0.properties.name.lowercased() == result.name?.lowercased() }) {
                                 viewModel.selectedBrand = [matchedBrand]
                                 viewModel.saveSearchResult(brand: matchedBrand, context: context)
                                 isFocused = false
+                                
+                                viewModel.resetState()
                             }
                         }
                     }
@@ -258,13 +298,13 @@ struct MapMenuView: View {
         Group {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(EntityData.entities, id: \.self) { brand in
-                    if brand.objectType == "booth" {
+                    if brand.properties.objectType == "booth" {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(brand.name)
+                            Text(brand.properties.name)
                                 .font(.headline)
                                 .foregroundStyle(Color.black)
                             
-                            Text(brand.hall ?? "")
+                            Text(brand.properties.hall ?? "")
                                 .font(.subheadline)
                                 .foregroundStyle(Color.gray)
                         }
@@ -372,6 +412,14 @@ struct MapMenuView: View {
     }
 }
     
+struct MapMenuView_Preview: View {
+    @StateObject private var viewModel = MapMenuViewModel()
+
+    var body: some View {
+        MapMenuView(viewModel: viewModel)
+    }
+}
+
 #Preview {
-    MapMenuView()
+    MapMenuView_Preview()
 }

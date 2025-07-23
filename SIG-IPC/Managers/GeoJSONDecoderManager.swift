@@ -61,31 +61,50 @@ final class GeoJSONDecoderManager {
     
     private func extractFeatureID(from feature: MKGeoJSONFeature) -> (String?, String) {
         guard let propertiesData = feature.properties else { return (nil, "") }
-        
         do {
+
             if let json = try JSONSerialization.jsonObject(with: propertiesData) as? [String: Any] {
                 if let name = json["name"] as? String {
                     let objectType = json["object_type"] as? String ?? ""
                     if self.hasSeededData {
                         return (name, objectType)
                     }
-                    
-                    let category = json["category"] as? [String] ?? []
-                    let activity = json["activity"] as? [String] ?? []
-                    let hall = json["hall"] as? String ?? ""
-                    
-                    let entity: Entity = Entity(
-                        name: name,
-                        objectType: objectType,
-                        hall: hall,
-                        category: category,
-                        activity: activity.count == 0 ? "" : activity[0]
+                }
+                if let geometry = feature.geometry.first as? MKPolygon {
+                    let points = geometry.points()
+                    var coords: [CLLocationCoordinate2D] = []
+                    for i in 0..<geometry.pointCount {
+                        let coord = points[i].coordinate
+                        coords.append(coord)
+                    }
+
+                    let entityProperties = EntityProperties(
+                        name: json["name"] as? String ?? "",
+                        hall: json["hall"] as? String,
+                        objectType: json["object_type"] as? String ?? "",
+                        category: json["category"] as? [String],
+                        activity: json["activity"] as? String
                     )
-                    
-                    print("Adding Booth to Data: \(entity.name)")
+
+//                    let entityGeometry = EntityGeometry(
+//                        coordinates: coords,
+//                        type: "Polygon"
+//                    )
+                    let wrappedCoords = coords.map { CoordinateWrapper($0) }
+
+                    let entityGeometry = EntityGeometry(
+                        coordinates: wrappedCoords,
+                        type: "Polygon"
+                    )
+
+                    let entity = Entity(
+                        properties: entityProperties,
+                        geometry: entityGeometry
+                    )
+
                     EntityData.entities.append(entity)
-                    
-                    return (name, objectType)
+                    print("✅ Parsed Entity \(entity.properties.name)")
+                    return (entity.properties.name, entity.properties.objectType)
                 }
             }
         } catch {
