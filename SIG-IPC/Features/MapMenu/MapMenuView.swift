@@ -85,9 +85,11 @@ struct MapMenuView: View {
     
     private func renderSearchBar() -> some View {
         HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.gray)
-                .font(.system(size: 15))
+            if viewModel.searchText.isEmpty {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Color.gray)
+                    .font(.system(size: 15))
+            }
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
                 .focused($isFocused)
@@ -100,6 +102,18 @@ struct MapMenuView: View {
                     viewModel.resetState()
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
+            
+            Spacer()
+            
+            if !viewModel.searchText.isEmpty && viewModel.selectedBrand.count == 1 {
+                Image(systemName: "xmark")
+                    .foregroundStyle(Color.red)
+                    .font(.system(size: 15))
+                    .onTapGesture {
+                        viewModel.searchText = ""
+                        viewModel.selectedBrand.removeAll()
+                    }
+            }
         }
         .padding(.vertical, 11)
         .padding(.horizontal, 15)
@@ -374,7 +388,7 @@ struct MapMenuView: View {
                                 }
                             }
                         
-                        if(!isFocused){ renderCategoryBtn() }
+                        if(!isFocused && viewModel.searchText.isEmpty){ renderCategoryBtn() }
                     }
                     .padding(.horizontal)
                     .onChange(of: isFocused) {

@@ -86,16 +86,18 @@ struct MapView: UIViewRepresentable {
             // Re-render overlay
             uiView.removeOverlay(polygon)
             uiView.addOverlay(polygon)
+            
             if ["tunnel", "booth", "stage"].contains(brand.properties.objectType){
                 var annotationTitle: String? = nil
                 switch displayMode {
-                case .brand:
-                    annotationTitle = brand.properties.name
-                case .activity:
-                    annotationTitle = brand.properties.activity
-                case .liveCrowd:
-                    break
+                    case .brand:
+                        annotationTitle = brand.properties.name
+                    case .activity:
+                        annotationTitle = brand.properties.activity
+                    case .liveCrowd:
+                        break
                 }
+                
                 if let title = annotationTitle {
                     let annotation = MKPointAnnotation()
                     annotation.coordinate = polygon.coordinate
