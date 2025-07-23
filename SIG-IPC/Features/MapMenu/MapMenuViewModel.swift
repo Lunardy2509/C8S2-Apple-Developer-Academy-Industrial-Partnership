@@ -1,6 +1,8 @@
 import Combine
 import CoreData
+import CoreLocation
 import Foundation
+import MapKit
 import SwiftUICore
 
 class MapMenuViewModel: ObservableObject {
@@ -12,13 +14,22 @@ class MapMenuViewModel: ObservableObject {
     @Published var showFilter: Bool = false
     @Published var shouldRecenter: Bool = false
     @Published var searchSuggestions: [SearchResult] = []
-    @Published var selectedDisplayMode: DisplayModeEnum = .brand
+    @Published var selectedDisplayMode: DisplayModeEnum = .brand {
+        didSet {
+            resetState()
+        }
+    }
     @Published var showSegmentedControl: Bool = true
     @Published var shouldActivateSearchFlow: Bool = false
 
     @Published var searchText: String = ""
     @Published var selectedBrand: [Entity] = []
     @Published var recentSearchResults: [CachedSearchResult] = []
+    
+    @Published var popupCoordinate: CLLocationCoordinate2D?
+    @Published var popupScreenPosition: CGPoint = .zero
+    @Published var mapViewRef: MKMapView?
+    @Published var popupData: CustomPopupData?
 
     // MARK: Private variable
     private var selectedBrands: [Entity] = []
@@ -31,8 +42,8 @@ class MapMenuViewModel: ObservableObject {
             .map { text -> [SearchResult] in
                 guard !text.isEmpty else { return [] }
                 return EntityData.entities
-                    .filter { $0.name.localizedCaseInsensitiveContains(text) && $0.objectType == "booth"}
-                    .map { SearchResult(name: $0.name, hall: $0.hall ?? "") }
+                    .filter { $0.properties.name.localizedCaseInsensitiveContains(text) && $0.properties.objectType == "booth"}
+                    .map { SearchResult(name: $0.properties.name, hall: $0.properties.hall ?? "") }
             }
             .assign(to: \.searchSuggestions, on: self)
             .store(in: &cancellables)
@@ -40,7 +51,7 @@ class MapMenuViewModel: ObservableObject {
 
     func applyCategory(){
         self.selectedBrands = EntityData.entities.filter {
-            $0.category?.contains(selectedCategory) == true
+            $0.properties.category?.contains(selectedCategory) == true
         }
         self.selectedBrand = []
         for brand in selectedBrands{
@@ -51,8 +62,8 @@ class MapMenuViewModel: ObservableObject {
     
     func saveSearchResult(brand: Entity, context: NSManagedObjectContext) {
         let entity = CachedSearchResult(context: context)
-        entity.name = brand.name
-        entity.hall = brand.hall ?? ""
+        entity.name = brand.properties.name
+        entity.hall = brand.properties.hall ?? ""
         entity.timestamp = Date()
 
         do {
@@ -91,5 +102,14 @@ class MapMenuViewModel: ObservableObject {
     
     func loadRecentSearchResults(context: NSManagedObjectContext) {
         self.recentSearchResults = fetchRecentSearchResults(context: context)
+    }
+    
+    func resetState() {
+        withAnimation {
+            self.popupData = nil
+            self.popupCoordinate = nil
+            self.popupScreenPosition = .zero
+            self.showSegmentedControl = true
+        }
     }
 }
