@@ -110,6 +110,8 @@ struct MapView: UIViewRepresentable {
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapView
         var lastDisplayMode: DisplayModeEnum
+        private let zoomLevelShowOnlyHalls = 0.005
+        private let zoomLevelShowFocusedBooths = 0.002
 
         init(_ parent: MapView) {
             self.parent = parent
@@ -296,6 +298,30 @@ struct MapView: UIViewRepresentable {
                 let point = mapView.convert(coordinate, toPointTo: mapView)
                 DispatchQueue.main.async {
                     self.parent.popupScreenPosition = point
+                }
+            }
+            
+            adjustAnnotationVisibility(for: mapView)
+        }
+        
+        func adjustAnnotationVisibility(for mapView: MKMapView) {
+            let latitudeDelta = mapView.region.span.latitudeDelta
+
+            for annotationView in mapView.annotations.compactMap({ mapView.view(for: $0) as? LabelAnnotationView }) {
+                guard let title = annotationView.annotation?.title ?? nil else { continue }
+                let entity = EntityData.entities.first(where: { $0.properties.name == title })
+
+                // Only show hall names at low zoom
+                if latitudeDelta > zoomLevelShowOnlyHalls {
+                    annotationView.setLabelHidden(!(entity?.properties.objectType == "hall"))
+                }
+                // Show only focused booths at medium zoom
+                else if latitudeDelta > zoomLevelShowFocusedBooths {
+                    annotationView.setLabelHidden(!(entity?.properties.objectType == "booth" && (entity?.properties.isFocused == true)))
+                }
+                // Show all booth labels at high zoom
+                else {
+                    annotationView.setLabelHidden(entity?.properties.objectType != "booth")
                 }
             }
         }

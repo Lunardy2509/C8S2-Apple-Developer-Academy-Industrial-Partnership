@@ -15,6 +15,7 @@ struct EntityProperties: Decodable, Hashable {
     var objectType: String
     var category: [String]?
     var activity: String?
+    var isFocused: Bool?
 }
 
 struct EntityGeometry: Decodable, Hashable {

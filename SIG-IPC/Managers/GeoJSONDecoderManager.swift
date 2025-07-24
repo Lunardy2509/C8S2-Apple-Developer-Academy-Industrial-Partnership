@@ -83,7 +83,8 @@ final class GeoJSONDecoderManager {
                         hall: json["hall"] as? String,
                         objectType: json["object_type"] as? String ?? "",
                         category: json["category"] as? [String],
-                        activity: json["activity"] as? String
+                        activity: json["activity"] as? String,
+                        isFocused: (json["isFocused"] as? String) == "yes"
                     )
 
 //                    let entityGeometry = EntityGeometry(
