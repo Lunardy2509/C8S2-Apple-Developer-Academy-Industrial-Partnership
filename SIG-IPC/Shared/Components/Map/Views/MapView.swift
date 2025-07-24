@@ -53,65 +53,54 @@ struct MapView: UIViewRepresentable {
     func updateUIView(_ uiView: MKMapView, context: Context) {
         if self.shouldRecenter, let userLocation = self.userLocation {
             uiView.setUserTrackingMode(.followWithHeading, animated: true)
-            
             DispatchQueue.main.async {
                 self.region = MKCoordinateRegion(
                     center: userLocation,
                     span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                 )
             }
-            
             uiView.setRegion(region, animated: true)
-            DispatchQueue.main.async{
+            DispatchQueue.main.async {
                 self.shouldRecenter = false
             }
+        }
+
+        context.coordinator.lastDisplayMode = displayMode
+        
+        let allAnnotations = uiView.annotations
+        uiView.removeAnnotations(allAnnotations.filter { !($0 is MKUserLocation) })
+        
+        for overlay in uiView.overlays {
+            guard let polygon = overlay as? MKPolygon,
+                  let title = polygon.title?.lowercased()
+            else { continue }
             
+            let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
+            let hall = HallData.halls.first(where: { $0.name.lowercased() == title })
+            
+            if let brand, ["tunnel", "booth", "stage"].contains(brand.properties.objectType) {
+                var annotationTitle: String?
+                switch displayMode {
+                case .brand: annotationTitle = brand.properties.name
+                case .activity: annotationTitle = brand.properties.activity
+                case .liveCrowd: break
+                }
+                
+                if let title = annotationTitle {
+                    let annotation = MKPointAnnotation()
+                    annotation.coordinate = polygon.coordinate
+                    annotation.title = title
+                    uiView.addAnnotation(annotation)
+                }
+            } else if let hall {
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = polygon.coordinate
+                annotation.title = hall.name
+                uiView.addAnnotation(annotation)
+            }
         }
-
-        if context.coordinator.lastDisplayMode != displayMode {
-            context.coordinator.lastDisplayMode = displayMode
-            uiView.removeAnnotations(uiView.annotations)
-        }
-
-        if context.coordinator.lastDisplayMode != displayMode {
-               context.coordinator.lastDisplayMode = displayMode
-               
-               let allAnnotations = uiView.annotations
-               uiView.removeAnnotations(allAnnotations.filter { !($0 is MKUserLocation) })
-               
-               for overlay in uiView.overlays {
-                   guard let polygon = overlay as? MKPolygon,
-                         let title = polygon.title?.lowercased()
-                   else { continue }
-                   
-                   let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
-                   let hall = HallData.halls.first(where: { $0.name.lowercased() == title })
-                   
-                   if let brand, ["tunnel", "booth", "stage"].contains(brand.properties.objectType) {
-                       var annotationTitle: String?
-                       switch displayMode {
-                       case .brand: annotationTitle = brand.properties.name
-                       case .activity: annotationTitle = brand.properties.activity
-                       case .liveCrowd: break
-                       }
-                       
-                       if let title = annotationTitle {
-                           let annotation = MKPointAnnotation()
-                           annotation.coordinate = polygon.coordinate
-                           annotation.title = title
-                           uiView.addAnnotation(annotation)
-                       }
-                   } else if let hall {
-                       let annotation = MKPointAnnotation()
-                       annotation.coordinate = polygon.coordinate
-                       annotation.title = hall.name
-                       uiView.addAnnotation(annotation)
-                   }
-               }
-           }
 
         context.coordinator.adjustAnnotationVisibility(for: uiView)
-        
     }
 
     // MARK: - Coordinator
