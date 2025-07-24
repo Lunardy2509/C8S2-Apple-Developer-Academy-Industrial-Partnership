@@ -47,7 +47,7 @@ struct CustomPopupView: View {
             }
             .buttonStyle(.plain)
         }
-        .frame(width: 200)
+        .frame(width: 175)
         .padding()
         .background(Color.white)
         .cornerRadius(12)

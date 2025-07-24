@@ -42,6 +42,7 @@ struct MapView: UIViewRepresentable {
             target: context.coordinator,
             action: #selector(Coordinator.handleLongPress(_:))
         )
+        longPress.minimumPressDuration = 0.2
         mapView.addGestureRecognizer(longPress)
         
         GeoJSONDecoderManager.shared.loadGeoJSON(on: mapView)
@@ -224,7 +225,10 @@ struct MapView: UIViewRepresentable {
         @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
             guard gestureRecognizer.state == .began,
                   let mapView = gestureRecognizer.view as? MKMapView else { return }
-
+            
+            if gestureRecognizer.state == .began {
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+            }
             let touchPoint = gestureRecognizer.location(in: mapView)
             let coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
 
@@ -249,11 +253,8 @@ struct MapView: UIViewRepresentable {
                     DispatchQueue.main.async {
                         self.parent.popupData = data
                     }
-                    
                     let centerCoord = calculateCentroid(of: coordinates)
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     showPopup(at: centerCoord, on: mapView)
-                    break
                 }
             }
         }
@@ -354,9 +355,7 @@ struct MapView: UIViewRepresentable {
 
             addSubview(label)
             frame = label.bounds
-            
-//            print("setup ", title)
-            
+                        
             let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
             self.addGestureRecognizer(longPress)
             self.isUserInteractionEnabled = true
