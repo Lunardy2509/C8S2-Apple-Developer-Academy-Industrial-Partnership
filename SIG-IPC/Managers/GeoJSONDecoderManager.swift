@@ -1,7 +1,6 @@
 import Foundation
 import MapKit
 
-
 final class GeoJSONDecoderManager {
     static let shared = GeoJSONDecoderManager()
     private var hasSeededData = false

@@ -7,8 +7,8 @@ struct MapMenuView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     @StateObject private var locationManager = LocationManager()
-    @FocusState private var isFocused: Bool
     @StateObject var viewModel: MapMenuViewModel = MapMenuViewModel()
+    @FocusState private var isFocused: Bool
     
     private func activateSearchFlowIfNeeded() {
         guard !viewModel.shouldActivateSearchFlow else { return }
@@ -105,10 +105,10 @@ struct MapMenuView: View {
             
             Spacer()
             
-            if !viewModel.searchText.isEmpty && viewModel.selectedBrand.count == 1 {
+            if !viewModel.searchText.isEmpty && viewModel.selectedBrand.count == 1 && isFocused == false {
                 Image(systemName: "xmark")
-                    .foregroundStyle(Color.red)
-                    .font(.system(size: 15))
+                    .foregroundStyle(Color.black)
+                    .font(.system(size: 15, weight: .semibold))
                     .onTapGesture {
                         viewModel.searchText = ""
                         viewModel.selectedBrand.removeAll()
@@ -118,7 +118,7 @@ struct MapMenuView: View {
         }
         .padding(.vertical, 11)
         .padding(.horizontal, 15)
-        .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
+        .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : (viewModel.selectedBrand.count == 1 && !viewModel.searchText.isEmpty && isFocused == false ? Color(red: 255 / 255, green: 239 / 255, blue: 239 / 255) : Color.white))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
         .onTapGesture{
@@ -322,7 +322,7 @@ struct MapMenuView: View {
                                 viewModel.selectedBrand = [matchedBrand]
                                 viewModel.saveSearchResult(brand: matchedBrand, context: context)
                                 isFocused = false
-                                
+                                viewModel.searchText = matchedBrand.properties.name
                                 viewModel.resetState()
                             }
                         }
@@ -409,6 +409,15 @@ struct MapMenuView: View {
                                     viewModel.loadRecentSearchResults(context: context)
                                 }
                             }
+                        
+                        if isFocused{
+                            Button(action: {
+                                isFocused = false
+                            }, label:{
+                                Text("Cancel")
+                                    .foregroundStyle(Color.blue)
+                            })
+                        }
                         
                         if(!isFocused && viewModel.searchText.isEmpty){ renderCategoryBtn() }
                     }
