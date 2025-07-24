@@ -86,7 +86,8 @@ final class GeoJSONDecoderManager {
                             geometry: HallGeometry(coordinates: wrappedCoords)
                         )
                         HallData.halls.append(hall)
-                        print("🏛️ Parsed Hall \(hall.name)")
+                        print("🏛️ Parsed \(hall.name)")
+                        return (hall.name, "hall")
                     } else {
                         let entityProperties = EntityProperties(
                             name: json["name"] as? String ?? "",
@@ -109,6 +110,7 @@ final class GeoJSONDecoderManager {
                         
                         EntityData.entities.append(entity)
                         print("✅ Parsed Entity \(entity.properties.name)")
+                        print("\(entity.properties.isFocused)")
                         return (entity.properties.name, entity.properties.objectType)
                     }
                 }

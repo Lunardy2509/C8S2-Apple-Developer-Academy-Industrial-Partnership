@@ -79,14 +79,17 @@ struct MapView: UIViewRepresentable {
             }
             
             guard let polygon = overlay as? MKPolygon,
-                  let title = polygon.title?.lowercased(),
-                  let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
+                  let title = polygon.title?.lowercased()
             else { continue }
-
+            
+            let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
+            let hall = HallData.halls.first(where: { $0.name.lowercased() == title })
+            
             // Re-render overlay
             uiView.removeOverlay(polygon)
             uiView.addOverlay(polygon)
-            if ["tunnel", "booth", "stage"].contains(brand.properties.objectType){
+            
+            if let brand, ["tunnel", "booth", "stage"].contains(brand.properties.objectType) {
                 var annotationTitle: String? = nil
                 switch displayMode {
                 case .brand:
@@ -96,12 +99,19 @@ struct MapView: UIViewRepresentable {
                 case .liveCrowd:
                     break
                 }
+                
                 if let title = annotationTitle {
                     let annotation = MKPointAnnotation()
                     annotation.coordinate = polygon.coordinate
                     annotation.title = title
                     uiView.addAnnotation(annotation)
                 }
+            }
+            else if let hall {
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = polygon.coordinate
+                annotation.title = hall.name
+                uiView.addAnnotation(annotation)
             }
         }
     }
@@ -111,8 +121,8 @@ struct MapView: UIViewRepresentable {
         var parent: MapView
         var lastDisplayMode: DisplayModeEnum
         
-        private let zoomLevelShowOnlyHalls = 0.002
-        private let zoomLevelShowFocusedBooths = 0.0007
+        private let zoomLevelShowOnlyHalls = 0.0002
+        private let zoomLevelShowFocusedBooths = 0.0005
 
         init(_ parent: MapView) {
             self.parent = parent
@@ -139,7 +149,7 @@ struct MapView: UIViewRepresentable {
                 if selectedBrands.contains(title) {
                     renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
-                    if ["hall a", "hall b", "hall cendrawasih"].contains(title) {
+                    if HallData.halls.contains(where: { $0.name.lowercased() == title }) {
                         renderer.fillColor = UIColor.white
                         renderer.strokeColor = UIColor(Color(red: 221 / 255, green: 170 / 255, blue: 167 / 255))
                         renderer.lineWidth = 1.5
@@ -311,18 +321,18 @@ struct MapView: UIViewRepresentable {
             for annotationView in mapView.annotations.compactMap({ mapView.view(for: $0) as? LabelAnnotationView }) {
                 guard let title = annotationView.annotation?.title ?? nil else { continue }
                 let entity = EntityData.entities.first(where: { $0.properties.name == title })
-
-                // Only show hall names at low zoom
-                if latitudeDelta > zoomLevelShowOnlyHalls {
-                    annotationView.setLabelHidden(!(entity?.properties.objectType == "hall"))
-                }
-                // Show only focused booths at medium zoom
-                else if latitudeDelta > zoomLevelShowFocusedBooths {
-                    annotationView.setLabelHidden(!(entity?.properties.objectType == "booth" && (entity?.properties.isFocused == true)))
-                }
-                // Show all booth labels at high zoom
-                else {
-                    annotationView.setLabelHidden(entity?.properties.objectType != "booth")
+                let hall = HallData.halls.first(where: { $0.name == title })
+                
+                if let hall {
+                    annotationView.setLabelHidden(latitudeDelta < zoomLevelShowFocusedBooths)
+                } else if let entity {
+                    if latitudeDelta >= zoomLevelShowFocusedBooths {
+                        annotationView.setLabelHidden(!(entity.properties.objectType == "booth" && entity.properties.isFocused == true))
+                    } else {
+                        annotationView.setLabelHidden(entity.properties.objectType != "booth")
+                    }
+                } else {
+                    annotationView.setLabelHidden(true)
                 }
             }
         }
