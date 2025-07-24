@@ -43,7 +43,8 @@
           "object_type": "wall",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -81,7 +82,8 @@
           "object_type": "wall",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -119,7 +121,8 @@
           "object_type": "gate",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -157,7 +160,8 @@
           "object_type": "registration booth",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -195,7 +199,8 @@
           "object_type": "registration booth",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -233,7 +238,8 @@
           "object_type": "registration booth",
           "hall": "Hall A",
           "activity": "registration",
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -271,7 +277,8 @@
           "object_type": "gate",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -309,7 +316,8 @@
           "object_type": "registration booth",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -343,10 +351,14 @@
       {
         "type": "Feature",
         "properties": {
-          "name": "Booth 1",
+          "name": "Secondate",
           "object_type": "booth",
           "hall": "A",
-          "activity": "null"
+          "activity": "null",
+          "category": [
+            "Makeup"
+          ],
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -384,7 +396,8 @@
           "object_type": "wall",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -422,7 +435,8 @@
           "object_type": "wall",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -460,7 +474,8 @@
           "object_type": "wall",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -498,7 +513,8 @@
           "object_type": "tunnel",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -544,7 +560,8 @@
           "object_type": "tunnel",
           "hall": "Hall C",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -602,7 +619,8 @@
           "object_type": "stage",
           "hall": "A",
           "activity": "stage",
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -642,7 +660,8 @@
           "activity": "Hairstyling booth",
           "category": [
             "Haircare"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -686,7 +705,8 @@
             "Haircare",
             "Fragrance",
             "Men's care"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -726,7 +746,8 @@
           "activity": "Custom makeup painting",
           "category": [
             "Makeup"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -772,7 +793,8 @@
             "Nails",
             "Skin Care",
             "Tools"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -814,7 +836,8 @@
             "Body",
             "Men's care",
             "Skin Care"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -857,7 +880,8 @@
             "Make Up",
             "Hair"
           ],
-          "activity": "Photobooth"
+          "activity": "Photobooth",
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -899,7 +923,8 @@
             "Skin Care",
             "Fragrance"
           ],
-          "activity": "Barber"
+          "activity": "Barber",
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -936,7 +961,8 @@
           "hall": "Cendrawasih",
           "object_type": "booth",
           "category": ["Hair"],
-          "activity": "Salon"
+          "activity": "Salon",
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -973,7 +999,8 @@
           "hall": "Cendrawasih",
           "object_type": "booth",
           "category": ["Make Up", "Skin Care"],
-          "activity": "Game"
+          "activity": "Game",
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1010,7 +1037,8 @@
             "hall": "Cendrawasih",
             "object_type": "booth",
             "category": ["Body", "Hair", "Skin Care", "Make Up"],
-            "activity": "Game"
+            "activity": "Game",
+            "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1049,7 +1077,8 @@
           "activity": null,
           "category": [
             "Hair"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -1089,7 +1118,8 @@
           "category": [
             "Skincare",
             "Make Up"
-          ]
+          ],
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1129,7 +1159,8 @@
           "category": [
             "Body",
             "Fragrance"
-          ]
+          ],
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1169,7 +1200,8 @@
           "activity": "Photo Booth",
           "category": [
             "Body"
-          ]
+          ],
+          "isFocused": "yes"
         },
         "geometry": {
           "coordinates": [
@@ -1209,7 +1241,8 @@
           "activity": null,
           "category": [
             "Skincare"
-          ]
+          ],
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1246,7 +1279,8 @@
           "object_type": "wall",
           "hall": "Hall A",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1284,7 +1318,8 @@
           "object_type": "tunnel",
           "hall": "Hall C",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
@@ -1317,7 +1352,8 @@
           "object_type": "tunnel",
           "hall": "Hall B",
           "activity": null,
-          "category": null
+          "category": null,
+          "isFocused": "no"
         },
         "geometry": {
           "coordinates": [
