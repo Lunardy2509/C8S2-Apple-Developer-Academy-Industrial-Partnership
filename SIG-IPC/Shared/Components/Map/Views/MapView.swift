@@ -110,8 +110,9 @@ struct MapView: UIViewRepresentable {
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapView
         var lastDisplayMode: DisplayModeEnum
-        private let zoomLevelShowOnlyHalls = 0.005
-        private let zoomLevelShowFocusedBooths = 0.002
+        
+        private let zoomLevelShowOnlyHalls = 0.002
+        private let zoomLevelShowFocusedBooths = 0.0007
 
         init(_ parent: MapView) {
             self.parent = parent
