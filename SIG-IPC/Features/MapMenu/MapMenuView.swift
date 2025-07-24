@@ -296,27 +296,32 @@ struct MapMenuView: View {
         Group {
             if(viewModel.recentSearchResults.isEmpty) {
                 Text("No recent searches!")
+                    .padding(.horizontal)
             } else {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(viewModel.recentSearchResults, id: \.self) { result in
-                        VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .resizable()
+                                .frame(width: 15, height: 15)
+
                             Text(result.name ?? "")
-                                .font(.headline)
-                                .foregroundStyle(Color.black)
+                                .font(.body)
+
+                            if let hall = result.hall {
+                                Text(" • \(hall)")
+                                    .font(.body)
+                            }
                             
-                            Text(result.hall ?? "")
-                                .font(.subheadline)
-                                .foregroundStyle(.gray)
+                            Spacer()
                             
-                            Text(result.timestamp?.formatted(date: .abbreviated, time: .shortened) ?? "")
-                                .font(.caption)
-                                .foregroundStyle(.gray)
+                            Image(systemName: "arrow.up.left")
+                                .resizable()
+                                .frame(width: 15, height: 15)
                         }
+                        .foregroundStyle(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(8)
-                        .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
+                        .padding(.bottom, 10)
                         .onTapGesture {
                             if let matchedBrand = EntityData.entities.first(where: { $0.properties.name.lowercased() == result.name?.lowercased() }) {
                                 viewModel.selectedBrand = [matchedBrand]
@@ -328,7 +333,6 @@ struct MapMenuView: View {
                         }
                     }
                 }
-                .padding(.horizontal)
             }
         }
     }
@@ -338,18 +342,28 @@ struct MapMenuView: View {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(EntityData.entities, id: \.self) { brand in
                     if brand.properties.objectType == "booth" {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(brand.properties.name)
-                                .font(.headline)
-                                .foregroundStyle(Color.black)
+                        HStack(spacing: 4) {
+                            Image(systemName: "magnifyingglass")
+                                .resizable()
+                                .frame(width: 15, height: 15)
                             
-                            Text(brand.properties.hall ?? "")
+                            Text(brand.properties.name)
                                 .font(.subheadline)
-                                .foregroundStyle(Color.gray)
+                            
+                            if let hall = brand.properties.hall {
+                                Text(" • \(hall)")
+                                    .font(.subheadline)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.up.left")
+                                .resizable()
+                                .frame(width: 15, height: 15)
                         }
+                        .foregroundStyle(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.white)
+                        .padding(.bottom, 10)
                         .cornerRadius(8)
                         .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
                         .onTapGesture {
@@ -361,7 +375,6 @@ struct MapMenuView: View {
                 }
             }
         }
-        .padding(.horizontal)
     }
     
     var body: some View {
@@ -371,18 +384,20 @@ struct MapMenuView: View {
                 if viewModel.searchSuggestions.isEmpty {
                     ScrollView(){
                         VStack(alignment: .leading) {
-                            Text("Recent Searches")
+                            Text("Search History")
                                 .font(.title3)
                                 .padding(.bottom, 5)
+                            
                             renderRecentSearches()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                         .padding(.bottom, 10)
                         VStack(alignment: .leading) {
-                            Text("All Brands")
+                            Text("Brand List")
                                 .font(.title3)
                                 .padding(.bottom, 5)
+                            
                             renderAllBrands()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
