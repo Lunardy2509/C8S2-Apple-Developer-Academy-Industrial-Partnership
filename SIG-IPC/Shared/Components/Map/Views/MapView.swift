@@ -114,6 +114,7 @@ struct MapView: UIViewRepresentable {
                 uiView.addAnnotation(annotation)
             }
         }
+        
     }
 
     // MARK: - Coordinator
@@ -121,7 +122,7 @@ struct MapView: UIViewRepresentable {
         var parent: MapView
         var lastDisplayMode: DisplayModeEnum
         
-        private let zoomLevelShowOnlyHalls = 0.0002
+        private let zoomLevelShowOnlyHalls = 0.0007
         private let zoomLevelShowFocusedBooths = 0.0005
 
         init(_ parent: MapView) {
@@ -230,7 +231,7 @@ struct MapView: UIViewRepresentable {
                     }
                 }
             }
-
+            
             return view
         }
         
@@ -323,14 +324,20 @@ struct MapView: UIViewRepresentable {
                 let entity = EntityData.entities.first(where: { $0.properties.name == title })
                 let hall = HallData.halls.first(where: { $0.name == title })
                 
-                if let hall {
-                    annotationView.setLabelHidden(latitudeDelta < zoomLevelShowFocusedBooths)
-                } else if let entity {
-                    if latitudeDelta >= zoomLevelShowFocusedBooths {
-                        annotationView.setLabelHidden(!(entity.properties.objectType == "booth" && entity.properties.isFocused == true))
-                    } else {
+                if let entity = EntityData.entities.first(where: { $0.properties.name == title }) {
+                    switch latitudeDelta {
+                    case ..<zoomLevelShowFocusedBooths:
+                        // very close zoom
                         annotationView.setLabelHidden(entity.properties.objectType != "booth")
+                    case ..<zoomLevelShowOnlyHalls:
+                        // medium zoom
+                        annotationView.setLabelHidden(!(entity.properties.objectType == "booth" && entity.properties.isFocused == true))
+                    default:
+                        // far zoom
+                        annotationView.setLabelHidden(true)
                     }
+                } else if let hall = HallData.halls.first(where: { $0.name == title }) {
+                    annotationView.setLabelHidden(latitudeDelta <= zoomLevelShowOnlyHalls)
                 } else {
                     annotationView.setLabelHidden(true)
                 }
