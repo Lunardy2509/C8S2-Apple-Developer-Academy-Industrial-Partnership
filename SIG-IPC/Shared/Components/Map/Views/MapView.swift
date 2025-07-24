@@ -43,6 +43,8 @@ struct MapView: UIViewRepresentable {
             action: #selector(Coordinator.handleLongPress(_:))
         )
         longPress.minimumPressDuration = 0.2
+        
+        longPress.delegate = context.coordinator
         mapView.addGestureRecognizer(longPress)
         
         GeoJSONDecoderManager.shared.loadGeoJSON(on: mapView)
@@ -64,6 +66,7 @@ struct MapView: UIViewRepresentable {
             DispatchQueue.main.async{
                 self.shouldRecenter = false
             }
+            
         }
 
         if context.coordinator.lastDisplayMode != displayMode {
@@ -71,46 +74,54 @@ struct MapView: UIViewRepresentable {
             uiView.removeAnnotations(uiView.annotations)
         }
 
-        // Force overlay re-render & apply annotations per displayMode
-        for overlay in uiView.overlays {
-            if let circle = overlay as? MKCircle {
-                uiView.removeOverlay(circle)
-                uiView.addOverlay(circle)
-                continue
-            }
-            
-            guard let polygon = overlay as? MKPolygon,
-                  let title = polygon.title?.lowercased(),
-                  let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
-            else { continue }
+        if context.coordinator.lastDisplayMode != displayMode {
+               context.coordinator.lastDisplayMode = displayMode
+               
+               let allAnnotations = uiView.annotations
+               uiView.removeAnnotations(allAnnotations.filter { !($0 is MKUserLocation) })
+               
+               for overlay in uiView.overlays {
+                   guard let polygon = overlay as? MKPolygon,
+                         let title = polygon.title?.lowercased()
+                   else { continue }
+                   
+                   let brand = EntityData.entities.first(where: { $0.properties.name.lowercased() == title })
+                   let hall = HallData.halls.first(where: { $0.name.lowercased() == title })
+                   
+                   if let brand, ["tunnel", "booth", "stage"].contains(brand.properties.objectType) {
+                       var annotationTitle: String?
+                       switch displayMode {
+                       case .brand: annotationTitle = brand.properties.name
+                       case .activity: annotationTitle = brand.properties.activity
+                       case .liveCrowd: break
+                       }
+                       
+                       if let title = annotationTitle {
+                           let annotation = MKPointAnnotation()
+                           annotation.coordinate = polygon.coordinate
+                           annotation.title = title
+                           uiView.addAnnotation(annotation)
+                       }
+                   } else if let hall {
+                       let annotation = MKPointAnnotation()
+                       annotation.coordinate = polygon.coordinate
+                       annotation.title = hall.name
+                       uiView.addAnnotation(annotation)
+                   }
+               }
+           }
 
-            // Re-render overlay
-            uiView.removeOverlay(polygon)
-            uiView.addOverlay(polygon)
-            if ["tunnel", "booth", "stage"].contains(brand.properties.objectType){
-                var annotationTitle: String? = nil
-                switch displayMode {
-                case .brand:
-                    annotationTitle = brand.properties.name
-                case .activity:
-                    annotationTitle = brand.properties.activity
-                case .liveCrowd:
-                    break
-                }
-                if let title = annotationTitle {
-                    let annotation = MKPointAnnotation()
-                    annotation.coordinate = polygon.coordinate
-                    annotation.title = title
-                    uiView.addAnnotation(annotation)
-                }
-            }
-        }
+        context.coordinator.adjustAnnotationVisibility(for: uiView)
+        
     }
 
     // MARK: - Coordinator
-    class Coordinator: NSObject, MKMapViewDelegate {
+    class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         var parent: MapView
         var lastDisplayMode: DisplayModeEnum
+        
+        private let zoomLevelShowOnlyHalls = 0.0007
+        private let zoomLevelShowFocusedBooths = 0.0005
 
         init(_ parent: MapView) {
             self.parent = parent
@@ -137,7 +148,7 @@ struct MapView: UIViewRepresentable {
                 if selectedBrands.contains(title) {
                     renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
-                    if ["hall a", "hall b", "hall cendrawasih"].contains(title) {
+                    if HallData.halls.contains(where: { $0.name.lowercased() == title }) {
                         renderer.fillColor = UIColor.white
                         renderer.strokeColor = UIColor(Color(red: 221 / 255, green: 170 / 255, blue: 167 / 255))
                         renderer.lineWidth = 1.5
@@ -193,7 +204,6 @@ struct MapView: UIViewRepresentable {
             }
             
             view?.onLongPress = { [weak self] in
-                print("assign longpress")
                 guard let self = self else { return }
                 let coordinate = annotation.coordinate
                 let title = annotation.title ?? ""
@@ -206,6 +216,7 @@ struct MapView: UIViewRepresentable {
                             DispatchQueue.main.async {
                                 self.parent.popupCoordinate = nil
                                 self.parent.popupData = nil
+                                self.adjustAnnotationVisibility(for: mapView)
                             }
                         },
                         onClick: {
@@ -215,10 +226,11 @@ struct MapView: UIViewRepresentable {
                     DispatchQueue.main.async {
                         self.parent.popupCoordinate = coordinate
                         self.parent.popupData = data
+                        self.adjustAnnotationVisibility(for: mapView)
                     }
                 }
             }
-
+            
             return view
         }
         
@@ -255,6 +267,10 @@ struct MapView: UIViewRepresentable {
                     }
                     let centerCoord = calculateCentroid(of: coordinates)
                     showPopup(at: centerCoord, on: mapView)
+                    
+                    adjustAnnotationVisibility(for: mapView)
+                    break
+                    
                 }
             }
         }
@@ -299,6 +315,38 @@ struct MapView: UIViewRepresentable {
                     self.parent.popupScreenPosition = point
                 }
             }
+            
+            adjustAnnotationVisibility(for: mapView)
+        }
+        
+        func adjustAnnotationVisibility(for mapView: MKMapView) {
+            let latitudeDelta = mapView.region.span.latitudeDelta
+            let isPopupActive = self.parent.popupData != nil
+
+            for annotationView in mapView.annotations.compactMap({ mapView.view(for: $0) as? LabelAnnotationView }) {
+                guard let title = annotationView.annotation?.title ?? nil else { continue }
+                let entity = EntityData.entities.first(where: { $0.properties.name == title })
+                let hall = HallData.halls.first(where: { $0.name == title })
+                
+                if let entity = EntityData.entities.first(where: { $0.properties.name == title }) {
+                    switch latitudeDelta {
+                    case ..<zoomLevelShowFocusedBooths:
+                        // very close zoom
+                        annotationView.setLabelHidden(entity.properties.objectType != "booth")
+                    case ..<zoomLevelShowOnlyHalls:
+                        // medium zoom
+                        annotationView.setLabelHidden(!(entity.properties.objectType == "booth" && entity.properties.isFocused == true))
+                    default:
+                        // far zoom
+                        annotationView.setLabelHidden(true)
+                    }
+                } else if let hall = HallData.halls.first(where: { $0.name == title }) {
+                    let isZoomedInEnough = latitudeDelta <= zoomLevelShowOnlyHalls
+                    annotationView.setLabelHidden(isZoomedInEnough || isPopupActive)
+                } else {
+                    annotationView.setLabelHidden(true)
+                }
+            }
         }
         
         func showPopup(at coordinate: CLLocationCoordinate2D, on mapView: MKMapView) {
@@ -330,7 +378,10 @@ struct MapView: UIViewRepresentable {
 
             return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
         }
-
+        
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+        }
     }
     
     class LabelAnnotationView: MKAnnotationView {
@@ -367,6 +418,7 @@ struct MapView: UIViewRepresentable {
                 print("g ada onLongPress")
             }
             onLongPress?()
+        
         }
 
         override func layoutSubviews() {

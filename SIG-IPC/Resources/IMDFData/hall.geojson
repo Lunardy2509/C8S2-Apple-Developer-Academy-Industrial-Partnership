@@ -4,7 +4,8 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Hall A"
+        "name": "Hall A",
+        "object_type": "hall"
       },
       "geometry": {
         "coordinates": [
@@ -85,7 +86,8 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Hall B"
+        "name": "Hall B",
+        "object_type": "hall"
       },
       "geometry": {
         "coordinates": [
