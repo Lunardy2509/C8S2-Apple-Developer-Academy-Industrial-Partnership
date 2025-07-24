@@ -42,6 +42,8 @@ struct MapView: UIViewRepresentable {
             target: context.coordinator,
             action: #selector(Coordinator.handleLongPress(_:))
         )
+        
+        longPress.delegate = context.coordinator
         mapView.addGestureRecognizer(longPress)
         
         GeoJSONDecoderManager.shared.loadGeoJSON(on: mapView)
@@ -118,7 +120,7 @@ struct MapView: UIViewRepresentable {
     }
 
     // MARK: - Coordinator
-    class Coordinator: NSObject, MKMapViewDelegate {
+    class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         var parent: MapView
         var lastDisplayMode: DisplayModeEnum
         
@@ -206,7 +208,6 @@ struct MapView: UIViewRepresentable {
             }
             
             view?.onLongPress = { [weak self] in
-                print("assign longpress")
                 guard let self = self else { return }
                 let coordinate = annotation.coordinate
                 let title = annotation.title ?? ""
@@ -228,6 +229,7 @@ struct MapView: UIViewRepresentable {
                     DispatchQueue.main.async {
                         self.parent.popupCoordinate = coordinate
                         self.parent.popupData = data
+                        self.adjustAnnotationVisibility(for: mapView)
                     }
                 }
             }
@@ -267,7 +269,9 @@ struct MapView: UIViewRepresentable {
                     let centerCoord = calculateCentroid(of: coordinates)
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     showPopup(at: centerCoord, on: mapView)
+                    
                     break
+                    
                 }
             }
         }
@@ -373,7 +377,10 @@ struct MapView: UIViewRepresentable {
 
             return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
         }
-
+        
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+        }
     }
     
     class LabelAnnotationView: MKAnnotationView {
@@ -412,6 +419,7 @@ struct MapView: UIViewRepresentable {
                 print("g ada onLongPress")
             }
             onLongPress?()
+        
         }
 
         override func layoutSubviews() {
