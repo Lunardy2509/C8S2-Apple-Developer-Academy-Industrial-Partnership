@@ -81,9 +81,9 @@ struct MapView: UIViewRepresentable {
             if let brand, ["tunnel", "booth", "stage"].contains(brand.properties.objectType) {
                 var annotationTitle: String?
                 switch displayMode {
-                case .brand: annotationTitle = brand.properties.name
-                case .activity: annotationTitle = brand.properties.activity
-                case .liveCrowd: break
+                    case .brand: annotationTitle = brand.properties.name
+                    case .activity: annotationTitle = brand.properties.activity
+                    case .liveCrowd: break
                 }
                 
                 if let title = annotationTitle {
@@ -134,7 +134,7 @@ struct MapView: UIViewRepresentable {
                 }
                 
                 if selectedBrands.contains(title) {
-                    renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
+                    renderer.fillColor = UIColor(Color(red: 218 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
                     if HallData.halls.contains(where: { $0.name.lowercased() == title }) {
                         renderer.fillColor = UIColor.white
@@ -151,7 +151,7 @@ struct MapView: UIViewRepresentable {
                         renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
                     } else {
                         // Booth
-                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
+                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 220 / 255, green: 62 / 255, blue: 136 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
                     }
                     renderer.strokeColor = UIColor.clear
                 }
@@ -243,7 +243,7 @@ struct MapView: UIViewRepresentable {
                            }
                        },
                         onClick: {
-                            //TO DO: Redirect to brand profile page
+                            // TODO: Redirect to brand profile page
                             return
                        })
                     
@@ -312,8 +312,6 @@ struct MapView: UIViewRepresentable {
 
             for annotationView in mapView.annotations.compactMap({ mapView.view(for: $0) as? LabelAnnotationView }) {
                 guard let title = annotationView.annotation?.title ?? nil else { continue }
-                let entity = EntityData.entities.first(where: { $0.properties.name == title })
-                let hall = HallData.halls.first(where: { $0.name == title })
                 
                 if let entity = EntityData.entities.first(where: { $0.properties.name == title }) {
                     switch latitudeDelta {
@@ -327,7 +325,7 @@ struct MapView: UIViewRepresentable {
                         // far zoom
                         annotationView.setLabelHidden(true)
                     }
-                } else if let hall = HallData.halls.first(where: { $0.name == title }) {
+                } else if let _ = HallData.halls.first(where: { $0.name == title }) {
                     let isZoomedInEnough = latitudeDelta <= zoomLevelShowOnlyHalls
                     annotationView.setLabelHidden(isZoomedInEnough || isPopupActive)
                 } else {
@@ -393,9 +391,7 @@ struct MapView: UIViewRepresentable {
 
             addSubview(label)
             frame = label.bounds
-            
-//            print("setup ", title)
-            
+                        
             let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
             self.addGestureRecognizer(longPress)
             self.isUserInteractionEnabled = true
@@ -403,8 +399,9 @@ struct MapView: UIViewRepresentable {
         
         @objc private func handleLongPress() {
             print("Long press triggered")
+
             if onLongPress == nil {
-                print("g ada onLongPress")
+                print("No onLongPress")
             }
             onLongPress?()
         
@@ -418,8 +415,5 @@ struct MapView: UIViewRepresentable {
         func setLabelHidden(_ hidden: Bool) {
             label.isHidden = hidden
         }
-        
     }
-
-
 }
