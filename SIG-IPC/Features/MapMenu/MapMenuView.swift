@@ -23,7 +23,7 @@ struct MapMenuView: View {
                 viewModel.showSegmentedControl = false
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.async {
                 isFocused = true
                 viewModel.popupData = nil
                 viewModel.popupCoordinate = nil
@@ -328,6 +328,7 @@ struct MapMenuView: View {
                                 isFocused = false
                                 viewModel.searchText = matchedBrand.properties.name
                                 viewModel.resetState()
+                                viewModel.selectedCategory = ""
                             }
                         }
                     }
@@ -370,6 +371,8 @@ struct MapMenuView: View {
                             viewModel.saveSearchResult(brand: brand, context: context)
                             isFocused = false
                             viewModel.searchText = viewModel.selectedBrand[0].properties.name
+                            viewModel.resetState()
+                            viewModel.selectedCategory = ""
                         }
                     }
                 }
