@@ -54,6 +54,7 @@ class MapMenuViewModel: ObservableObject {
             $0.properties.category?.contains(selectedCategory) == true
         }
         self.selectedBrand = []
+        
         for brand in selectedBrands{
             selectedBrand.append(brand)
         }

@@ -85,9 +85,8 @@ struct MapView: UIViewRepresentable {
                    if let brand, ["tunnel", "booth", "stage"].contains(brand.properties.objectType) {
                        var annotationTitle: String?
                        switch displayMode {
-                       case .brand: annotationTitle = brand.properties.name
-                       case .activity: annotationTitle = brand.properties.activity
-                       case .liveCrowd: break
+                           case .brand: annotationTitle = brand.properties.name
+                           case .activity: annotationTitle = brand.properties.activity
                        }
                        
                        if let title = annotationTitle {
@@ -321,26 +320,23 @@ struct MapView: UIViewRepresentable {
                 let entity: Entity?
 
                 switch parent.displayMode {
-                case .brand:
-                    entity = EntityData.entities.first(where: { $0.properties.name == title })
-                case .activity:
-                    entity = EntityData.entities.first(where: { $0.properties.activity == title })
-                default:
-                    entity = nil
+                    case .brand:
+                        entity = EntityData.entities.first(where: { $0.properties.name == title })
+                    default:
+                        entity = EntityData.entities.first(where: { $0.properties.activity == title })
                 }
-                let hall = HallData.halls.first(where: { $0.name == title })
-                
+                                
                 if let entity = entity {
                     switch latitudeDelta {
-                    case ..<zoomLevelShowFocusedBooths:
-                        // very close zoom
-                        annotationView.setLabelHidden(entity.properties.objectType != "booth")
-                    case ..<zoomLevelShowOnlyHalls:
-                        // medium zoom
-                        annotationView.setLabelHidden(!(entity.properties.objectType == "booth" && entity.properties.isFocused == true))
-                    default:
-                        // far zoom
-                        annotationView.setLabelHidden(true)
+                        case ..<zoomLevelShowFocusedBooths:
+                            // Very close zoom
+                        annotationView.setLabelHidden(entity.properties.objectType != "booth" && entity.properties.objectType != "stage")
+                        case ..<zoomLevelShowOnlyHalls:
+                            // Medium zoom
+                            annotationView.setLabelHidden(!(entity.properties.objectType == "booth" && entity.properties.isFocused == true) && entity.properties.objectType != "stage")
+                        default:
+                            // Far zoom
+                            annotationView.setLabelHidden(entity.properties.objectType != "hall")
                     }
                 } else if let _ = HallData.halls.first(where: { $0.name == title }) {
                     let isZoomedInEnough = latitudeDelta <= zoomLevelShowOnlyHalls

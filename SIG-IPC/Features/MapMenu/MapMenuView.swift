@@ -219,6 +219,7 @@ struct MapMenuView: View {
                     Spacer()
                     Button(action: {
                         viewModel.selectedCategory = ""
+                        viewModel.applyCategory()
                     }) {
                         Text("Reset")
                             .frame(width: 120)
@@ -283,6 +284,7 @@ struct MapMenuView: View {
                 viewModel.selectedBrand = [matchedBrand]
                 viewModel.saveSearchResult(brand: matchedBrand, context: context)
                 viewModel.loadRecentSearchResults(context: context)
+                viewModel.searchText = matchedBrand.properties.name
             }
             isFocused = false
             
@@ -486,7 +488,7 @@ struct MapMenuView: View {
                 }
             }
         }
-        .toolbarBackground(Color.white, for: .navigationBar)
+        .toolbarBackground(colorScheme == .dark ? Color.black : Color.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
     }
 }
