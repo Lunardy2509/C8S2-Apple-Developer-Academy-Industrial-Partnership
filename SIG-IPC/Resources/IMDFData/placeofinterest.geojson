@@ -354,7 +354,7 @@
           "name": "Secondate",
           "object_type": "booth",
           "hall": "A",
-          "activity": "null",
+          "activity": null,
           "category": [
             "Makeup"
           ],

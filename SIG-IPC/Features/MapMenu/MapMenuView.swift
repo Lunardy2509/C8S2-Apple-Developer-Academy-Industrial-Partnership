@@ -74,7 +74,7 @@ struct MapMenuView: View {
                     let y = viewModel.popupScreenPosition.y
                     VStack {
                         CustomPopupView(data: data)
-                            .position(x: x, y: y-125)
+                            .position(x: x+15, y: y-165)
                         
                     }
                 }
@@ -462,8 +462,6 @@ struct MapMenuView: View {
             .safeAreaInset(edge: .bottom) {
                 segmentedControlInset()
                     .padding(.top, 20)
-                    .background(Color.white)
-                    .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: -2)
                 
             }
             .sheet(isPresented: $viewModel.showFilter) {
