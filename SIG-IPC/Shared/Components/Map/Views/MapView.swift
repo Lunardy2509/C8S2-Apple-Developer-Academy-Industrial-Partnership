@@ -69,10 +69,10 @@ struct MapView: UIViewRepresentable {
             
         }
 
-        if context.coordinator.lastDisplayMode != displayMode {
-            context.coordinator.lastDisplayMode = displayMode
-            uiView.removeAnnotations(uiView.annotations)
-        }
+//        if context.coordinator.lastDisplayMode != displayMode {
+//            context.coordinator.lastDisplayMode = displayMode
+//            uiView.removeAnnotations(uiView.annotations)
+//        }
 
         if context.coordinator.lastDisplayMode != displayMode {
                context.coordinator.lastDisplayMode = displayMode
@@ -325,10 +325,19 @@ struct MapView: UIViewRepresentable {
 
             for annotationView in mapView.annotations.compactMap({ mapView.view(for: $0) as? LabelAnnotationView }) {
                 guard let title = annotationView.annotation?.title ?? nil else { continue }
-                let entity = EntityData.entities.first(where: { $0.properties.name == title })
+                let entity: Entity?
+
+                switch parent.displayMode {
+                case .brand:
+                    entity = EntityData.entities.first(where: { $0.properties.name == title })
+                case .activity:
+                    entity = EntityData.entities.first(where: { $0.properties.activity == title })
+                default:
+                    entity = nil
+                }
                 let hall = HallData.halls.first(where: { $0.name == title })
                 
-                if let entity = EntityData.entities.first(where: { $0.properties.name == title }) {
+                if let entity = entity {
                     switch latitudeDelta {
                     case ..<zoomLevelShowFocusedBooths:
                         // very close zoom

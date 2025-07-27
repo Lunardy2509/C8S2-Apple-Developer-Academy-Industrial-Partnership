@@ -11,15 +11,6 @@ struct SegmentedControlView: View {
     @Binding var displayMode: DisplayModeEnum
     @Namespace private var animation
     var body: some View {
-//        VStack {
-//            Picker("Select DisplayMode", selection: $displayMode) {
-//                ForEach(DisplayModeEnum.allCases) { displayMode in
-//                    Text(displayMode.rawValue).tag(displayMode)
-//                }
-//            }
-//            .pickerStyle(.segmented)
-//            .padding()
-//        }
         HStack(spacing: 0) {
             ForEach(DisplayModeEnum.allCases) { mode in
                 ZStack {

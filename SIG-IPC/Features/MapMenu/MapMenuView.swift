@@ -95,9 +95,6 @@ struct MapMenuView: View {
                         viewModel.selectedBrand = [matchedBrand]
                         viewModel.saveSearchResult(brand: matchedBrand, context: context)
                     }
-//                    withAnimation {
-//                        viewModel.showSegmentedControl = true
-//                    }
                     viewModel.resetState()
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
@@ -317,6 +314,8 @@ struct MapMenuView: View {
                             viewModel.selectedBrand = [brand]
                             viewModel.saveSearchResult(brand: brand, context: context)
                             isFocused = false
+                            
+                            viewModel.resetState()
                         }
                     }
                 }
@@ -396,8 +395,6 @@ struct MapMenuView: View {
             .safeAreaInset(edge: .bottom) {
                 segmentedControlInset()
                     .padding(.top, 20)
-                    .background(Color.white)
-                    .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: -2)
                 
             }
             .sheet(isPresented: $viewModel.showFilter) {
