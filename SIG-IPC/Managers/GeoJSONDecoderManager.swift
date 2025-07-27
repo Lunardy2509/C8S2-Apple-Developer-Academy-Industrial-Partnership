@@ -1,7 +1,6 @@
 import Foundation
 import MapKit
 
-
 final class GeoJSONDecoderManager {
     static let shared = GeoJSONDecoderManager()
     private var hasSeededData = false
@@ -110,7 +109,7 @@ final class GeoJSONDecoderManager {
                         
                         EntityData.entities.append(entity)
                         print("✅ Parsed Entity \(entity.properties.name)")
-                        print("\(entity.properties.isFocused)")
+
                         return (entity.properties.name, entity.properties.objectType)
                     }
                 }

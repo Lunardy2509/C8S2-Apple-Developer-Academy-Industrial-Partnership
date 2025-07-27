@@ -54,25 +54,19 @@ struct MapView: UIViewRepresentable {
     func updateUIView(_ uiView: MKMapView, context: Context) {
         if self.shouldRecenter, let userLocation = self.userLocation {
             uiView.setUserTrackingMode(.followWithHeading, animated: true)
-            
             DispatchQueue.main.async {
                 self.region = MKCoordinateRegion(
                     center: userLocation,
                     span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                 )
             }
-            
             uiView.setRegion(region, animated: true)
-            DispatchQueue.main.async{
+            DispatchQueue.main.async {
                 self.shouldRecenter = false
             }
             
         }
 
-//        if context.coordinator.lastDisplayMode != displayMode {
-//            context.coordinator.lastDisplayMode = displayMode
-//            uiView.removeAnnotations(uiView.annotations)
-//        }
 
         if context.coordinator.lastDisplayMode != displayMode {
                context.coordinator.lastDisplayMode = displayMode
@@ -112,7 +106,6 @@ struct MapView: UIViewRepresentable {
            }
 
         context.coordinator.adjustAnnotationVisibility(for: uiView)
-        
     }
 
     // MARK: - Coordinator
@@ -146,7 +139,7 @@ struct MapView: UIViewRepresentable {
                 }
                 
                 if selectedBrands.contains(title) {
-                    renderer.fillColor = UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255))
+                    renderer.fillColor = UIColor(Color(red: 218 / 255, green: 53 / 255, blue: 88 / 255))
                 } else {
                     if HallData.halls.contains(where: { $0.name.lowercased() == title }) {
                         renderer.fillColor = UIColor.white
@@ -163,7 +156,7 @@ struct MapView: UIViewRepresentable {
                         renderer.fillColor = UIColor.red.withAlphaComponent(0.8)
                     } else {
                         // Booth
-                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 221 / 255, green: 53 / 255, blue: 88 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
+                        renderer.fillColor = selectedBrands.isEmpty ? UIColor(Color(red: 220 / 255, green: 62 / 255, blue: 136 / 255)) : UIColor(Color(red: 241 / 255, green: 178 / 255, blue: 207 / 255))
                     }
                     renderer.strokeColor = UIColor.clear
                 }
@@ -258,7 +251,7 @@ struct MapView: UIViewRepresentable {
                            }
                        },
                         onClick: {
-                            //TO DO: Redirect to brand profile page
+                            // TODO: Redirect to brand profile page
                             return
                        })
                     
@@ -349,7 +342,7 @@ struct MapView: UIViewRepresentable {
                         // far zoom
                         annotationView.setLabelHidden(true)
                     }
-                } else if let hall = HallData.halls.first(where: { $0.name == title }) {
+                } else if let _ = HallData.halls.first(where: { $0.name == title }) {
                     let isZoomedInEnough = latitudeDelta <= zoomLevelShowOnlyHalls
                     annotationView.setLabelHidden(isZoomedInEnough || isPopupActive)
                 } else {
@@ -423,8 +416,9 @@ struct MapView: UIViewRepresentable {
         
         @objc private func handleLongPress() {
             print("Long press triggered")
+
             if onLongPress == nil {
-                print("g ada onLongPress")
+                print("No onLongPress")
             }
             onLongPress?()
         
@@ -438,8 +432,5 @@ struct MapView: UIViewRepresentable {
         func setLabelHidden(_ hidden: Bool) {
             label.isHidden = hidden
         }
-        
     }
-
-
 }

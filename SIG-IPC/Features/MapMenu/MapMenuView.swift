@@ -2,12 +2,13 @@ import MapKit
 import SwiftUI
 
 struct MapMenuView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var context
     @Environment(\.colorScheme) private var colorScheme
     
     @StateObject private var locationManager = LocationManager()
-    @FocusState private var isFocused: Bool
     @StateObject var viewModel: MapMenuViewModel = MapMenuViewModel()
+    @FocusState private var isFocused: Bool
     
     private func activateSearchFlowIfNeeded() {
         guard !viewModel.shouldActivateSearchFlow else { return }
@@ -17,12 +18,12 @@ struct MapMenuView: View {
             viewModel.selectedDisplayMode = .brand
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        DispatchQueue.main.async {
             withAnimation {
                 viewModel.showSegmentedControl = false
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.async {
                 isFocused = true
                 viewModel.popupData = nil
                 viewModel.popupCoordinate = nil
@@ -34,10 +35,9 @@ struct MapMenuView: View {
     
     private func segmentedControlInset() -> some View {
         Group {
-            if viewModel.showSegmentedControl {
+            if viewModel.showSegmentedControl && !isFocused {
                 SegmentedControlView(displayMode: $viewModel.selectedDisplayMode)
                     .padding(.bottom, 40)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.showSegmentedControl)
@@ -84,9 +84,11 @@ struct MapMenuView: View {
     
     private func renderSearchBar() -> some View {
         HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.gray)
-                .font(.system(size: 15))
+            if viewModel.searchText.isEmpty {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Color.gray)
+                    .font(.system(size: 15))
+            }
             
             TextField("Cari brand Anda", text: $viewModel.searchText)
                 .focused($isFocused)
@@ -95,35 +97,70 @@ struct MapMenuView: View {
                         viewModel.selectedBrand = [matchedBrand]
                         viewModel.saveSearchResult(brand: matchedBrand, context: context)
                     }
+                    
                     viewModel.resetState()
                 }
                 .allowsHitTesting(!viewModel.shouldActivateSearchFlow)
+            
+            Spacer()
+            
+            if !viewModel.searchText.isEmpty && viewModel.selectedBrand.count == 1 && isFocused == false {
+                Image(systemName: "xmark")
+                    .foregroundStyle(Color.black)
+                    .font(.system(size: 15, weight: .semibold))
+                    .onTapGesture {
+                        viewModel.searchText = ""
+                        viewModel.selectedBrand.removeAll()
+                        isFocused = false
+                    }
+            }
         }
         .padding(.vertical, 11)
         .padding(.horizontal, 15)
-        .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
+        .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : (viewModel.selectedBrand.count == 1 && !viewModel.searchText.isEmpty && isFocused == false ? Color(red: 255 / 255, green: 239 / 255, blue: 239 / 255) : Color.white))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
-        .simultaneousGesture(
-            TapGesture().onEnded {
-                activateSearchFlowIfNeeded()
-            }
-        )
+        .onTapGesture{
+            activateSearchFlowIfNeeded()
+        }
     }
     
+    @ViewBuilder
     private func renderCategoryBtn() -> some View {
-        Image(systemName: "line.3.horizontal.decrease")
-            .scaledToFit()
-            .frame(height: 15)
-            .padding(.vertical, 15)
-            .padding(.horizontal, 10)
-            .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
-            .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
-            .onTapGesture {
-                viewModel.showFilter = true
-            }
+        if viewModel.selectedCategory == ""{
+            Image(systemName: "line.3.horizontal.decrease")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 15)
+                .padding(.vertical, 15)
+                .padding(.horizontal, 10)
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+                .onTapGesture {
+                    viewModel.showFilter = true
+                }
+        } else{
+            Image("filterIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 15)
+                .padding(.vertical, 15)
+                .padding(.horizontal, 10)
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
+                .background(colorScheme == .dark ? Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255) : Color(red: 255 / 255, green: 239 / 255, blue: 239 / 255))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(red: 219/255, green: 40/255, blue: 78/255), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
+                .onTapGesture {
+                    viewModel.showFilter = true
+                }
+            
+        }
     }
     
     private func renderRecenterBtn() -> some View {
@@ -184,11 +221,15 @@ struct MapMenuView: View {
                         viewModel.selectedCategory = ""
                     }) {
                         Text("Reset")
-                            .foregroundStyle(Color.white)
                             .frame(width: 120)
                             .padding()
-                            .background(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
+                            .foregroundStyle(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255))
+                            .background(Color.white)
                             .cornerRadius(18)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .stroke(Color(red: 219 / 255, green: 40 / 255, blue: 78 / 255), lineWidth: 1)
+                            )
                     }
                     
                     Button(action: {
@@ -254,39 +295,44 @@ struct MapMenuView: View {
         Group {
             if(viewModel.recentSearchResults.isEmpty) {
                 Text("No recent searches!")
+                    .padding(.horizontal)
             } else {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(viewModel.recentSearchResults, id: \.self) { result in
-                        VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .resizable()
+                                .frame(width: 15, height: 15)
+
                             Text(result.name ?? "")
-                                .font(.headline)
-                                .foregroundStyle(Color.black)
+                                .font(.body)
+
+                            if let hall = result.hall {
+                                Text(" • \(hall)")
+                                    .font(.body)
+                            }
                             
-                            Text(result.hall ?? "")
-                                .font(.subheadline)
-                                .foregroundStyle(.gray)
+                            Spacer()
                             
-                            Text(result.timestamp?.formatted(date: .abbreviated, time: .shortened) ?? "")
-                                .font(.caption)
-                                .foregroundStyle(.gray)
+                            Image(systemName: "arrow.up.left")
+                                .resizable()
+                                .frame(width: 15, height: 15)
                         }
+                        .foregroundStyle(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(8)
-                        .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
+                        .padding(.bottom, 10)
                         .onTapGesture {
                             if let matchedBrand = EntityData.entities.first(where: { $0.properties.name.lowercased() == result.name?.lowercased() }) {
                                 viewModel.selectedBrand = [matchedBrand]
                                 viewModel.saveSearchResult(brand: matchedBrand, context: context)
                                 isFocused = false
-                                
+                                viewModel.searchText = matchedBrand.properties.name
                                 viewModel.resetState()
+                                viewModel.selectedCategory = ""
                             }
                         }
                     }
                 }
-                .padding(.horizontal)
             }
         }
     }
@@ -296,32 +342,42 @@ struct MapMenuView: View {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(EntityData.entities, id: \.self) { brand in
                     if brand.properties.objectType == "booth" {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(brand.properties.name)
-                                .font(.headline)
-                                .foregroundStyle(Color.black)
+                        HStack(spacing: 4) {
+                            Image(systemName: "magnifyingglass")
+                                .resizable()
+                                .frame(width: 15, height: 15)
                             
-                            Text(brand.properties.hall ?? "")
+                            Text(brand.properties.name)
                                 .font(.subheadline)
-                                .foregroundStyle(Color.gray)
+                            
+                            if let hall = brand.properties.hall {
+                                Text(" • \(hall)")
+                                    .font(.subheadline)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.up.left")
+                                .resizable()
+                                .frame(width: 15, height: 15)
                         }
+                        .foregroundStyle(Color(red: 95 / 255, green: 95 / 255, blue: 95 / 255))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.white)
+                        .padding(.bottom, 10)
                         .cornerRadius(8)
                         .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 1)
                         .onTapGesture {
                             viewModel.selectedBrand = [brand]
                             viewModel.saveSearchResult(brand: brand, context: context)
                             isFocused = false
-                            
+                            viewModel.searchText = viewModel.selectedBrand[0].properties.name
                             viewModel.resetState()
+                            viewModel.selectedCategory = ""
                         }
                     }
                 }
             }
         }
-        .padding(.horizontal)
     }
     
     var body: some View {
@@ -331,18 +387,20 @@ struct MapMenuView: View {
                 if viewModel.searchSuggestions.isEmpty {
                     ScrollView(){
                         VStack(alignment: .leading) {
-                            Text("Recent Searches")
+                            Text("Search History")
                                 .font(.title3)
                                 .padding(.bottom, 5)
+                            
                             renderRecentSearches()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                         .padding(.bottom, 10)
                         VStack(alignment: .leading) {
-                            Text("All Brands")
+                            Text("Brand List")
                                 .font(.title3)
                                 .padding(.bottom, 5)
+                            
                             renderAllBrands()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -370,7 +428,16 @@ struct MapMenuView: View {
                                 }
                             }
                         
-                        if(!isFocused){ renderCategoryBtn() }
+                        if isFocused{
+                            Button(action: {
+                                isFocused = false
+                            }, label:{
+                                Text("Cancel")
+                                    .foregroundStyle(Color.blue)
+                            })
+                        }
+                        
+                        if(!isFocused && viewModel.searchText.isEmpty){ renderCategoryBtn() }
                     }
                     .padding(.horizontal)
                     .onChange(of: isFocused) {
@@ -406,6 +473,21 @@ struct MapMenuView: View {
                 dismissKeyboardIfFocused()
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Home")
+                    }
+                    .foregroundStyle(Color.blue)
+                }
+            }
+        }
+        .toolbarBackground(Color.white, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 }
     

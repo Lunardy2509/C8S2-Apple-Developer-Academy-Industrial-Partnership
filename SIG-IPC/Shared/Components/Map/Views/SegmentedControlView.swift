@@ -1,15 +1,9 @@
-//
-//  SegmentedControlView.swift
-//  SIG-IPC
-//
-//  Created by jonathan calvin sutrisna on 17/07/25.
-//
-
 import SwiftUI
 
 struct SegmentedControlView: View {
     @Binding var displayMode: DisplayModeEnum
     @Namespace private var animation
+    
     var body: some View {
         HStack(spacing: 0) {
             ForEach(DisplayModeEnum.allCases) { mode in
