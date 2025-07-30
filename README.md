@@ -40,9 +40,9 @@ This project was made possible through the Apple Developer Academy’s **Industr
 
 <p align="center">
   <h2>iOS App Prototype</h2>
-  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-1.jpeg" width="50%">
-  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-2.jpeg" width="50%">
-  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-3.jpeg" width="50%">
+  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-1.jpeg" width="30%">
+  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-2.jpeg" width="30%">
+  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-3.jpeg" width="30%">
 </p>
 
 ## 🧪 Outcome
