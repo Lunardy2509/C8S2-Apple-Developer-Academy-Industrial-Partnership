@@ -29,15 +29,20 @@ This project was made possible through the Apple Developer Academy’s **Industr
 
 <!-- Insert demo screenshots here -->
 <p align="center">
+  <h2>Wireframe</h2>
   <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/Wireframe-Product-Documentation.png" width="100%">
 </p>
 
 <p align="center">
+  <h2>Hi-Fi Prototype</h2>
   <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/Hi-Fi%20Prototype-Product-Documentation.png" width="100%">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS%20App%20PoC.jpeg" width="100%">
+  <h2>iOS App Prototype</h2>
+  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-1.jpeg" width="50%">
+  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-2.jpeg" width="50%">
+  <img src="https://github.com/Lunardy2509/C8S2-Apple-Developer-Academy-Industrial-Partnership/blob/master/Documentation/iOS-App-PoC-3.jpeg" width="50%">
 </p>
 
 ## 🧪 Outcome
